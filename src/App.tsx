@@ -14,6 +14,8 @@ import {
   Moon,
   ChevronDown,
   ChevronUp,
+  FolderDown,
+  ArrowLeft,
 } from 'lucide-react';
 import {
   checkBackendHealth,
@@ -22,9 +24,10 @@ import {
   subscribeDownloadEvents,
   createBatchDownload,
   subscribeBatchEvents,
+  getBatchStatus,
   ApiServiceError,
 } from './services/api';
-import { MediaInfoResult, DownloadJobData, BatchJobData } from './types/index';
+import { MediaInfoResult, DownloadJobData, BatchJobData, PlaylistMetadata } from './types/index';
 import { SingleVideoView } from './components/SingleVideoView';
 import { PlaylistView } from './components/PlaylistView';
 import { DownloadProgressView } from './components/DownloadProgressView';
@@ -40,6 +43,18 @@ export function App() {
   const [mediaData, setMediaData] = useState<MediaInfoResult | null>(null);
   const [downloadJob, setDownloadJob] = useState<DownloadJobData | null>(null);
   const [batchJob, setBatchJob] = useState<BatchJobData | null>(null);
+  const [activePlaylistData, setActivePlaylistData] = useState<PlaylistMetadata | null>(() => {
+    const match = window.location.pathname.match(/^\/downloads\/([a-zA-Z0-9_-]+)/i);
+    if (match && match[1]) {
+      try {
+        const stored = sessionStorage.getItem(`ytdl_playlist_session_${match[1]}`);
+        if (stored) return JSON.parse(stored);
+      } catch {
+        // ignore
+      }
+    }
+    return null;
+  });
   const [isStartingBatch, setIsStartingBatch] = useState(false);
   const [apiError, setApiError] = useState<{ code?: string; message: string } | null>(null);
   const [inputError, setInputError] = useState<string | null>(null);
@@ -56,6 +71,11 @@ export function App() {
     if (path === '/cookies') return 'cookies';
     if (path === '/disclaimer') return 'disclaimer';
     return null;
+  });
+
+  const [isDownloadsView, setIsDownloadsView] = useState<boolean>(() => {
+    const path = window.location.pathname.toLowerCase().replace(/\/$/, '');
+    return path === '/downloads';
   });
 
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -94,41 +114,127 @@ export function App() {
     };
   }, []);
 
+  const loadBatchJob = async (jobId: string) => {
+    if (unsubscribeBatchRef.current) {
+      unsubscribeBatchRef.current();
+      unsubscribeBatchRef.current = null;
+    }
+    setIsDownloadsView(false);
+    setState('batch_downloading');
+    setApiError(null);
+    document.title = 'YTdownloader — Download Queue';
+    try {
+      const data = await getBatchStatus(jobId);
+      setBatchJob(data);
+      try {
+        const stored = sessionStorage.getItem(`ytdl_playlist_session_${jobId}`);
+        if (stored) {
+          setActivePlaylistData(JSON.parse(stored));
+        }
+      } catch {
+        // ignore
+      }
+      const unsub = subscribeBatchEvents(jobId, {
+        onInit: (updated) => setBatchJob(updated),
+        onUpdate: (updated) => setBatchJob(updated),
+        onCancelled: (updated) => setBatchJob(updated),
+      });
+      unsubscribeBatchRef.current = unsub;
+    } catch (err) {
+      setState('error');
+      setApiError({
+        code: 'BATCH_NOT_FOUND',
+        message:
+          err instanceof Error
+            ? err.message
+            : 'Playlist batch download was not found or has expired.',
+      });
+    }
+  };
+
   useEffect(() => {
-    switch (legalRoute) {
-      case 'privacy':
-        document.title = 'YTdownloader — Privacy Policy';
-        break;
-      case 'terms':
-        document.title = 'YTdownloader — Terms of Service';
-        break;
-      case 'dmca':
-        document.title = 'YTdownloader — DMCA / Copyright';
-        break;
-      case 'cookies':
-        document.title = 'YTdownloader — Cookie Policy';
-        break;
-      case 'disclaimer':
-        document.title = 'YTdownloader — Disclaimer';
-        break;
-      default:
-        document.title = 'YTdownloader';
-        break;
+    const pathname = window.location.pathname;
+    const initialMatch = pathname.match(/^\/downloads\/([a-zA-Z0-9_-]+)/i);
+    if (initialMatch && initialMatch[1]) {
+      loadBatchJob(initialMatch[1]);
+    } else if (pathname.toLowerCase().replace(/\/$/, '') === '/downloads') {
+      setIsDownloadsView(true);
+      document.title = 'YTdownloader — Downloads';
+    }
+  }, []);
+
+  useEffect(() => {
+    if (legalRoute) {
+      switch (legalRoute) {
+        case 'privacy':
+          document.title = 'YTdownloader — Privacy Policy';
+          break;
+        case 'terms':
+          document.title = 'YTdownloader — Terms of Service';
+          break;
+        case 'dmca':
+          document.title = 'YTdownloader — DMCA / Copyright';
+          break;
+        case 'cookies':
+          document.title = 'YTdownloader — Cookie Policy';
+          break;
+        case 'disclaimer':
+          document.title = 'YTdownloader — Disclaimer';
+          break;
+      }
+    } else if (isDownloadsView && !batchJob) {
+      document.title = 'YTdownloader — Downloads';
+    } else if (state === 'batch_downloading') {
+      document.title = 'YTdownloader — Download Queue';
+    } else {
+      document.title = 'YTdownloader';
     }
 
     const handlePopState = () => {
-      const path = window.location.pathname.toLowerCase().replace(/\/$/, '');
-      if (path === '/privacy') setLegalRoute('privacy');
-      else if (path === '/terms') setLegalRoute('terms');
-      else if (path === '/dmca') setLegalRoute('dmca');
-      else if (path === '/cookies') setLegalRoute('cookies');
-      else if (path === '/disclaimer') setLegalRoute('disclaimer');
-      else setLegalRoute(null);
+      const pathname = window.location.pathname;
+      const path = pathname.toLowerCase().replace(/\/$/, '');
+      if (path === '/privacy') {
+        setLegalRoute('privacy');
+        setIsDownloadsView(false);
+      } else if (path === '/terms') {
+        setLegalRoute('terms');
+        setIsDownloadsView(false);
+      } else if (path === '/dmca') {
+        setLegalRoute('dmca');
+        setIsDownloadsView(false);
+      } else if (path === '/cookies') {
+        setLegalRoute('cookies');
+        setIsDownloadsView(false);
+      } else if (path === '/disclaimer') {
+        setLegalRoute('disclaimer');
+        setIsDownloadsView(false);
+      } else if (path === '/downloads') {
+        setLegalRoute(null);
+        setIsDownloadsView(true);
+      } else {
+        setLegalRoute(null);
+        setIsDownloadsView(false);
+        const match = pathname.match(/^\/downloads\/([a-zA-Z0-9_-]+)/i);
+        if (match && match[1]) {
+          const jobId = match[1];
+          if (!batchJob || batchJob.batchJobId !== jobId) {
+            loadBatchJob(jobId);
+          }
+        } else if (path === '' || path === '/') {
+          if (unsubscribeBatchRef.current) {
+            unsubscribeBatchRef.current();
+            unsubscribeBatchRef.current = null;
+          }
+          setBatchJob(null);
+          setState('idle');
+          document.title = 'YTdownloader';
+        }
+      }
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [legalRoute]);
+  }, [legalRoute, isDownloadsView, state, batchJob]);
 
   const handlePaste = async () => {
     try {
@@ -179,6 +285,9 @@ export function App() {
     try {
       const data = await analyzeUrl(trimmedUrl, abortControllerRef.current.signal);
       setMediaData(data);
+      if (data.type === 'playlist') {
+        setActivePlaylistData(data);
+      }
       setState('success');
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
@@ -318,7 +427,19 @@ export function App() {
         items,
       });
 
+      try {
+        sessionStorage.setItem(`ytdl_playlist_session_${batchJobId}`, JSON.stringify(mediaData));
+      } catch {
+        // ignore
+      }
+      setActivePlaylistData(mediaData);
+
       setBatchJob((prev) => (prev ? { ...prev, batchJobId } : null));
+
+      if (window.location.pathname !== `/downloads/${batchJobId}`) {
+        window.history.pushState({}, '', `/downloads/${batchJobId}`);
+      }
+      document.title = 'YTdownloader — Download Queue';
 
       const unsub = subscribeBatchEvents(batchJobId, {
         onInit: (data) => setBatchJob(data),
@@ -347,14 +468,43 @@ export function App() {
       window.history.pushState({}, '', `/${route}`);
     }
     setLegalRoute(route);
+    setIsDownloadsView(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToDownloads = () => {
+    if (batchJob?.batchJobId) {
+      if (window.location.pathname !== `/downloads/${batchJob.batchJobId}`) {
+        window.history.pushState({}, '', `/downloads/${batchJob.batchJobId}`);
+      }
+      setState('batch_downloading');
+      document.title = 'YTdownloader — Download Queue';
+    } else {
+      if (window.location.pathname !== '/downloads') {
+        window.history.pushState({}, '', '/downloads');
+      }
+      setIsDownloadsView(true);
+      document.title = 'YTdownloader — Downloads';
+    }
+    setLegalRoute(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const navigateToHome = () => {
+    if (unsubscribeBatchRef.current) {
+      unsubscribeBatchRef.current();
+      unsubscribeBatchRef.current = null;
+    }
     if (window.location.pathname !== '/') {
       window.history.pushState({}, '', '/');
     }
     setLegalRoute(null);
+    setIsDownloadsView(false);
+    setBatchJob(null);
+    if (state === 'batch_downloading') {
+      setState('idle');
+    }
+    document.title = 'YTdownloader';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -427,14 +577,14 @@ export function App() {
     >
       {/* 1. Header with YouTube-Style Red Logo, Nav Links, Theme Toggle */}
       <header className="border-b border-indigo-500/20 bg-[#0c1222]/90 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between">
           {/* Logo & Name */}
           <div
-            className="flex items-center space-x-3 cursor-pointer select-none"
+            className="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer select-none"
             onClick={handleReset}
           >
             {/* YouTube-style Red Logo with White Play Triangle */}
-            <div className="h-7 w-10 sm:h-8 sm:w-11 rounded-lg bg-[#FF0000] flex items-center justify-center shadow-lg shadow-red-600/30 hover:scale-105 transition-transform">
+            <div className="h-7 w-10 sm:h-8 sm:w-11 rounded-lg bg-[#FF0000] flex items-center justify-center shadow-lg shadow-red-600/30 hover:scale-105 active:scale-95 transition-transform duration-150 shrink-0">
               <div className="w-0 h-0 border-y-[5px] border-y-transparent border-l-[9px] border-l-white ml-0.5"></div>
             </div>
             <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white">
@@ -447,32 +597,32 @@ export function App() {
             <button
               type="button"
               onClick={handleReset}
-              className="hover:text-indigo-400 transition"
+              className="hover:text-indigo-400 transition-colors duration-150 cursor-pointer"
             >
               Home
             </button>
             <button
               type="button"
               onClick={() => handleNavSection('features')}
-              className="hover:text-indigo-400 transition"
+              className="hover:text-indigo-400 transition-colors duration-150 cursor-pointer"
             >
               Features
             </button>
             <button
               type="button"
               onClick={() => handleNavSection('faq')}
-              className="hover:text-indigo-400 transition"
+              className="hover:text-indigo-400 transition-colors duration-150 cursor-pointer"
             >
               FAQ
             </button>
           </nav>
 
           {/* Right actions */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => setIsDarkTheme(!isDarkTheme)}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-slate-300 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="p-2 sm:p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 border border-slate-700/60 text-slate-300 hover:text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer"
               title="Toggle theme"
               aria-label="Toggle theme"
             >
@@ -484,7 +634,7 @@ export function App() {
             </button>
 
             <div
-              className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-medium border ${
+              className={`inline-flex items-center space-x-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium border transition-colors duration-200 ${
                 backendStatus === 'online'
                   ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                   : backendStatus === 'offline'
@@ -493,11 +643,11 @@ export function App() {
               }`}
             >
               {backendStatus === 'online' ? (
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               ) : backendStatus === 'offline' ? (
-                <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+                <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
               ) : (
-                <RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+                <RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin shrink-0" />
               )}
               <span className="hidden sm:inline">
                 {backendStatus === 'online'
@@ -512,13 +662,42 @@ export function App() {
       </header>
 
       {/* 2. Main Content Container */}
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-16">
+      <main className="flex-1 max-w-5xl mx-auto w-full px-3.5 sm:px-6 py-6 sm:py-12">
         {legalRoute ? (
           <LegalPageView
             route={legalRoute}
             onNavigateHome={navigateToHome}
             onNavigateRoute={navigateToLegal}
           />
+        ) : state === 'batch_downloading' && batchJob ? (
+          <div className="w-full">
+            <BatchDownloadProgressView
+              batch={batchJob}
+              playlistMetadata={activePlaylistData || (mediaData?.type === 'playlist' ? mediaData : null)}
+              onReset={handleReset}
+              onBatchUpdated={(updated) => setBatchJob(updated)}
+            />
+          </div>
+        ) : isDownloadsView ? (
+          <div className="w-full max-w-xl py-12 px-6 rounded-3xl bg-[#0f172a]/95 border border-indigo-500/30 flex flex-col items-center justify-center space-y-5 shadow-2xl backdrop-blur-xl mx-auto my-12 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <FolderDown className="w-8 h-8 text-indigo-400" />
+            </div>
+            <div className="space-y-2 max-w-md">
+              <h2 className="text-xl font-bold text-white tracking-tight">No Active Download Session</h2>
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                You don't have an active single video or playlist batch download in progress. Paste a YouTube URL on the home page to start downloading.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={navigateToHome}
+              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium text-xs sm:text-sm shadow-md shadow-indigo-500/30 transition cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Return to Home</span>
+            </button>
+          </div>
         ) : (
           <div className="w-full flex flex-col items-center text-center">
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white max-w-3xl leading-tight sm:leading-tight">
@@ -539,10 +718,10 @@ export function App() {
           noValidate
         >
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-2xl blur opacity-35 group-hover:opacity-65 transition duration-300"></div>
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-2xl blur opacity-35 group-hover:opacity-65 transition-opacity duration-300"></div>
 
-            <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-[#0f172a] border border-indigo-500/30 rounded-2xl p-2 gap-2 shadow-2xl">
-              <div className="relative flex-1 flex items-center">
+            <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-[#0f172a] border border-indigo-500/30 hover:border-indigo-500/50 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-500/20 rounded-2xl p-2 gap-2 shadow-2xl transition duration-200">
+              <div className="relative flex-1 min-w-0 flex items-center">
                 <input
                   type="url"
                   value={url}
@@ -553,7 +732,7 @@ export function App() {
                     if (apiError) setApiError(null);
                   }}
                   placeholder="Paste YouTube URL"
-                  className="w-full bg-transparent px-4 py-3 text-slate-100 placeholder-slate-500 text-sm sm:text-base focus:outline-none focus:ring-0 disabled:opacity-60 font-sans"
+                  className="w-full bg-transparent px-3 sm:px-4 py-3 text-slate-100 placeholder-slate-500 text-sm sm:text-base focus:outline-none focus:ring-0 disabled:opacity-60 font-sans truncate"
                   aria-label="Paste YouTube URL"
                 />
                 {url && state !== 'analyzing' && state !== 'downloading' && (
@@ -563,7 +742,7 @@ export function App() {
                       setUrl('');
                       handleReset();
                     }}
-                    className="mr-2 text-xs text-slate-400 hover:text-slate-200 px-2 py-1 rounded focus:outline-none"
+                    className="mr-2 text-xs text-slate-400 hover:text-slate-200 px-2 py-1 rounded focus:outline-none shrink-0 transition-colors cursor-pointer"
                   >
                     Clear
                   </button>
@@ -575,7 +754,7 @@ export function App() {
                   type="button"
                   onClick={handlePaste}
                   disabled={state === 'analyzing' || state === 'downloading'}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-4 py-3 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-slate-300 hover:text-white text-sm font-medium border border-slate-700/70 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-4 py-3 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 active:scale-95 text-slate-300 hover:text-white text-sm font-medium border border-slate-700/70 transition duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 min-h-[44px] cursor-pointer"
                   title="Paste from clipboard"
                 >
                   <Clipboard className="w-4 h-4" />
@@ -585,7 +764,7 @@ export function App() {
                 <button
                   type="submit"
                   disabled={state === 'analyzing' || state === 'downloading'}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-sm shadow-md shadow-indigo-500/30 transition focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-75"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-purple-500 hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 text-white font-semibold text-sm shadow-md shadow-indigo-500/30 transition duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-75 disabled:transform-none min-h-[44px] cursor-pointer"
                 >
                   {state === 'analyzing' ? (
                     <>
@@ -605,7 +784,7 @@ export function App() {
 
           {inputError && (
             <div
-              className="mt-3 flex items-center justify-center space-x-2 text-rose-400 text-sm"
+              className="mt-3 flex items-center justify-center space-x-2 text-rose-400 text-sm animate-fade-in"
               role="alert"
             >
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -619,7 +798,7 @@ export function App() {
         </form>
 
         {/* 3. Results / Active Download Section */}
-        <section className="mt-10 w-full flex justify-center">
+        <section className="mt-8 sm:mt-10 w-full flex justify-center animate-slide-up">
           {state === 'analyzing' && (
             <div className="w-full max-w-xl py-12 px-6 rounded-3xl bg-[#0f172a]/80 border border-indigo-500/30 flex flex-col items-center justify-center space-y-4 shadow-2xl backdrop-blur-xl">
               <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center shadow-lg shadow-indigo-500/20">
@@ -653,13 +832,7 @@ export function App() {
             />
           )}
 
-          {/* Real Playlist Batch Download Progress View */}
-          {state === 'batch_downloading' && batchJob && (
-            <BatchDownloadProgressView
-              batch={batchJob}
-              onReset={handleReset}
-            />
-          )}
+
 
           {/* Single Video Card */}
           {state === 'success' && mediaData && mediaData.type === 'video' && (
@@ -804,6 +977,30 @@ export function App() {
               <h4 className="text-xs font-bold uppercase tracking-wider text-white">Products</h4>
               <ul className="space-y-2 text-xs text-slate-400">
                 <li>
+                  <a
+                    href="/"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigateToHome();
+                    }}
+                    className="hover:text-indigo-400 transition text-left block"
+                  >
+                    Home
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={batchJob?.batchJobId ? `/downloads/${batchJob.batchJobId}` : '/downloads'}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigateToDownloads();
+                    }}
+                    className="hover:text-indigo-400 transition text-left block"
+                  >
+                    Downloads
+                  </a>
+                </li>
+                <li>
                   <button type="button" onClick={navigateToHome} className="hover:text-indigo-400 transition text-left">
                     Single Video Downloader
                   </button>
@@ -877,9 +1074,14 @@ export function App() {
             <p className="max-w-2xl text-[11px] leading-relaxed text-slate-400">
               YTdownloader is designed strictly for personal archiving and downloading content the user owns or has explicit permission to download. Platform DRM, access controls, and cipher-locks are not bypassed.
             </p>
-            <p className="font-semibold text-slate-300 shrink-0">
-              @2026 YTdownloader All right reserved
-            </p>
+            <div className="shrink-0 space-y-1 text-center md:text-right">
+              <p className="font-semibold text-slate-300">
+                @2026 YTdownloader All right reserved
+              </p>
+              <p className="text-[11px] text-slate-400 font-medium">
+                Developed with ❤️ by Santosh Koli
+              </p>
+            </div>
           </div>
         </div>
       </footer>

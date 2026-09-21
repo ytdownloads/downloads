@@ -12,6 +12,7 @@ import {
   Radio,
 } from 'lucide-react';
 import { SingleVideoMetadata } from '../types/index';
+import { useAutoDownload } from '../services/autoDownload';
 
 interface SingleVideoViewProps {
   video: SingleVideoMetadata;
@@ -46,6 +47,7 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
   onReset,
   onStartDownload,
 }) => {
+  const [autoDownload, toggleAutoDownload] = useAutoDownload();
   const [formatType, setFormatType] = useState<'video' | 'audio'>('video');
 
   const videoFormats = video.formats.filter((f) => f.hasVideo);
@@ -69,17 +71,17 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
   const currentSelectedFormat = video.formats.find((f) => f.formatId === selectedFormatId);
 
   return (
-    <div className="w-full max-w-4xl space-y-6 text-left animate-fade-in">
+    <div className="w-full max-w-4xl space-y-6 text-left animate-slide-up">
       {/* 1. Main Video Result Card */}
-      <div className="bg-[#0f172a]/95 border border-indigo-500/20 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl relative overflow-hidden">
+      <div className="bg-[#0f172a]/95 border border-indigo-500/20 rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl backdrop-blur-xl relative overflow-hidden">
         {/* Glow effect */}
         <div className="absolute top-0 right-0 w-72 h-72 bg-indigo-600/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
 
         {/* Top bar with content type badge & action */}
-        <div className="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-4 mb-6">
           <div className="flex items-center space-x-2.5">
             <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/15 border border-indigo-500/30 text-indigo-300">
-              <Film className="w-3.5 h-3.5 text-indigo-400" />
+              <Film className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
               <span>Single Video</span>
             </span>
             <span className="text-xs text-slate-500 hidden sm:inline font-mono">
@@ -87,17 +89,38 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
             </span>
           </div>
 
-          <button
-            type="button"
-            onClick={onReset}
-            className="text-xs text-indigo-400 hover:text-indigo-300 transition focus:outline-none"
-          >
-            ← Analyze another URL
-          </button>
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+            {/* Auto Download Toggle */}
+            <button
+              type="button"
+              onClick={() => toggleAutoDownload()}
+              aria-label={`Toggle auto download. Currently ${autoDownload ? 'ON' : 'OFF'}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition active:scale-95 duration-150 cursor-pointer ${
+                autoDownload
+                  ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/40 shadow-sm shadow-emerald-500/10'
+                  : 'bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 border-slate-700'
+              }`}
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  autoDownload ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'
+                }`}
+              />
+              <span>Auto Download: {autoDownload ? 'ON' : 'OFF'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onReset}
+              className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors focus:outline-none cursor-pointer py-1"
+            >
+              ← Analyze another URL
+            </button>
+          </div>
         </div>
 
         {/* Video Information Row */}
-        <div className="flex flex-col sm:flex-row gap-6 sm:gap-7 items-start">
+        <div className="flex flex-col sm:flex-row gap-5 sm:gap-7 items-start">
           {/* Thumbnail */}
           <div className="relative w-full sm:w-64 aspect-video rounded-2xl overflow-hidden bg-slate-900 border border-slate-700/60 shrink-0 shadow-lg group">
             {video.thumbnail ? (
@@ -119,9 +142,9 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
           </div>
 
           {/* Details */}
-          <div className="flex-1 min-w-0 flex flex-col justify-between space-y-3">
+          <div className="flex-1 min-w-0 flex flex-col justify-between space-y-3 w-full">
             <div>
-              <h2 className="text-lg sm:text-2xl font-bold text-white tracking-tight leading-snug">
+              <h2 className="text-lg sm:text-2xl font-bold text-white tracking-tight leading-snug break-words">
                 {video.title}
               </h2>
               <p className="mt-2 text-sm font-medium text-indigo-300 flex items-center space-x-1.5">
@@ -167,7 +190,7 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
       {/* 2. Format & Quality Selection Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Format Card */}
-        <div className="bg-[#0f172a]/95 border border-indigo-500/20 rounded-3xl p-6 shadow-xl backdrop-blur-xl">
+        <div className="bg-[#0f172a]/95 border border-indigo-500/20 rounded-3xl p-4 sm:p-6 shadow-xl backdrop-blur-xl">
           <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center space-x-2">
             <Radio className="w-4 h-4 text-indigo-400" />
             <span>Format Options</span>
@@ -177,7 +200,7 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
             <button
               type="button"
               onClick={() => handleFormatTypeChange('video')}
-              className={`w-full flex items-center justify-between p-4 rounded-2xl border transition focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+              className={`w-full min-h-[44px] flex items-center justify-between p-4 rounded-2xl border transition duration-150 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer ${
                 formatType === 'video'
                   ? 'bg-indigo-600/20 border-indigo-500/80 text-white shadow-md'
                   : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 text-slate-300'
@@ -202,7 +225,7 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
             <button
               type="button"
               onClick={() => handleFormatTypeChange('audio')}
-              className={`w-full flex items-center justify-between p-4 rounded-2xl border transition focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+              className={`w-full min-h-[44px] flex items-center justify-between p-4 rounded-2xl border transition duration-150 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer ${
                 formatType === 'audio'
                   ? 'bg-purple-600/20 border-purple-500/80 text-white shadow-md'
                   : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 text-slate-300'
@@ -227,7 +250,7 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
         </div>
 
         {/* Quality Card */}
-        <div className="bg-[#0f172a]/95 border border-indigo-500/20 rounded-3xl p-6 shadow-xl backdrop-blur-xl">
+        <div className="bg-[#0f172a]/95 border border-indigo-500/20 rounded-3xl p-4 sm:p-6 shadow-xl backdrop-blur-xl">
           <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center space-x-2">
             <Sparkles className="w-4 h-4 text-purple-400" />
             <span>Available Quality Streams</span>
@@ -242,7 +265,7 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
                     key={f.formatId}
                     type="button"
                     onClick={() => setSelectedFormatId(f.formatId)}
-                    className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                    className={`w-full min-h-[44px] flex items-center justify-between p-3.5 rounded-xl border text-left transition duration-150 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer ${
                       isSelected
                         ? 'bg-gradient-to-r from-indigo-600/25 to-purple-600/25 border-indigo-500 text-white'
                         : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 text-slate-300'
@@ -280,12 +303,12 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
       </div>
 
       {/* 3. Primary Full-Width Download Action */}
-      <div className="bg-[#0f172a]/95 border border-indigo-500/20 rounded-3xl p-6 shadow-xl backdrop-blur-xl">
+      <div className="bg-[#0f172a]/95 border border-indigo-500/20 rounded-3xl p-4 sm:p-6 shadow-xl backdrop-blur-xl">
         <button
           type="button"
           onClick={() => onStartDownload(selectedFormatId)}
           disabled={!selectedFormatId}
-          className="w-full inline-flex items-center justify-center space-x-2.5 py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white cursor-pointer border border-indigo-500/40 text-base font-bold shadow-xl shadow-indigo-500/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full min-h-[52px] inline-flex items-center justify-center space-x-2.5 py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white cursor-pointer border border-indigo-500/40 text-base font-bold shadow-xl shadow-indigo-500/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Download className="w-5 h-5" />
           <span>

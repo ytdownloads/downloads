@@ -7,7 +7,10 @@ import {
   CreateDownloadResponse,
   CreateBatchDownloadRequest,
   CreateBatchDownloadResponse,
+  AddBatchItemsRequest,
+  AddBatchItemsResponse,
   BatchJobData,
+  ApiError,
 } from '../types/index';
 
 const RAW_API_URL = import.meta.env.VITE_API_URL;
@@ -200,6 +203,29 @@ export async function createBatchDownload(
   return payload.data;
 }
 
+export async function getBatchStatus(batchJobId: string): Promise<BatchJobData> {
+  const response = await fetch(`${API_BASE}/batch/${encodeURIComponent(batchJobId)}/status`, {
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  let payload: { success: boolean; data?: BatchJobData; error?: ApiError };
+  try {
+    payload = await response.json();
+  } catch {
+    throw new ApiServiceError('PARSE_ERROR', `Unexpected server response (HTTP ${response.status}).`);
+  }
+
+  if (!response.ok || !payload.success || !payload.data) {
+    const errCode = payload.error?.code || `HTTP_${response.status}`;
+    const errMessage = payload.error?.message || 'Failed to fetch batch download status.';
+    throw new ApiServiceError(errCode, errMessage, payload.error?.details);
+  }
+
+  return payload.data;
+}
+
 export async function cancelBatchDownload(batchJobId: string): Promise<void> {
   const response = await fetch(`${API_BASE}/batch/${encodeURIComponent(batchJobId)}/cancel`, {
     method: 'POST',
@@ -210,6 +236,32 @@ export async function cancelBatchDownload(batchJobId: string): Promise<void> {
 
   if (!response.ok) {
     let message = 'Failed to cancel batch download.';
+    try {
+      const payload = await response.json();
+      if (payload.error?.message) message = payload.error.message;
+    } catch {
+      // ignore
+    }
+    throw new ApiServiceError('CANCEL_FAILED', message);
+  }
+}
+
+export async function cancelBatchItem(
+  batchJobId: string,
+  itemId: string
+): Promise<void> {
+  const response = await fetch(
+    `${API_BASE}/batch/${encodeURIComponent(batchJobId)}/items/${encodeURIComponent(itemId)}/cancel`,
+    {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+    }
+  );
+
+  if (!response.ok) {
+    let message = 'Failed to cancel item download.';
     try {
       const payload = await response.json();
       if (payload.error?.message) message = payload.error.message;
@@ -238,6 +290,38 @@ export async function retryBatchDownload(batchJobId: string): Promise<void> {
     }
     throw new ApiServiceError('RETRY_FAILED', message);
   }
+}
+
+export async function addBatchItems(
+  batchJobId: string,
+  req: AddBatchItemsRequest
+): Promise<BatchJobData> {
+  const response = await fetch(`${API_BASE}/batch/${encodeURIComponent(batchJobId)}/items`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(req),
+  });
+
+  let payload: AddBatchItemsResponse;
+  try {
+    payload = await response.json();
+  } catch {
+    throw new ApiServiceError(
+      'PARSE_ERROR',
+      `Unexpected server response (HTTP ${response.status}).`
+    );
+  }
+
+  if (!response.ok || !payload.success || !payload.data) {
+    const errCode = payload.error?.code || `HTTP_${response.status}`;
+    const errMessage = payload.error?.message || 'Failed to add items to batch download.';
+    throw new ApiServiceError(errCode, errMessage, payload.error?.details);
+  }
+
+  return payload.data.batch;
 }
 
 export function getBatchZipUrl(batchJobId: string): string {
