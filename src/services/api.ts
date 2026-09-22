@@ -13,10 +13,13 @@ import {
   ApiError,
 } from '../types/index';
 
-const RAW_API_URL = import.meta.env.VITE_API_URL;
-const API_BASE = RAW_API_URL
-  ? (RAW_API_URL.endsWith('/api') ? RAW_API_URL.replace(/\/+$/, '') : `${RAW_API_URL.replace(/\/+$/, '')}/api`)
-  : '/api';
+const RAW_API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? '/api' : 'https://downloads-backend.onrender.com');
+
+const API_BASE = RAW_API_URL.endsWith('/api')
+  ? RAW_API_URL.replace(/\/+$/, '')
+  : `${RAW_API_URL.replace(/\/+$/, '')}/api`;
 
 
 export class ApiServiceError extends Error {

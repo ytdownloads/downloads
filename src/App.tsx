@@ -34,6 +34,7 @@ import { DownloadProgressView } from './components/DownloadProgressView';
 import { BatchDownloadProgressView } from './components/BatchDownloadProgressView';
 import { ErrorAlert } from './components/ErrorAlert';
 import { LegalPageView, LegalRoute } from './components/LegalPageView';
+import { PremiumComingSoon } from './components/PremiumComingSoon';
 
 type AppState = 'idle' | 'analyzing' | 'success' | 'downloading' | 'batch_downloading' | 'error';
 
@@ -610,6 +611,14 @@ export function App() {
             </button>
             <button
               type="button"
+              onClick={() => handleNavSection('plans')}
+              className="hover:text-indigo-400 transition-colors duration-150 cursor-pointer inline-flex items-center gap-1.5"
+            >
+              <span>Plans</span>
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 leading-none">Soon</span>
+            </button>
+            <button
+              type="button"
               onClick={() => handleNavSection('faq')}
               className="hover:text-indigo-400 transition-colors duration-150 cursor-pointer"
             >
@@ -902,7 +911,10 @@ export function App() {
           </div>
         </section>
 
-        {/* 5. FAQ Section */}
+        {/* 5. Premium Plans & Accounts — Coming Soon Section */}
+        <PremiumComingSoon />
+
+        {/* 6. FAQ Section */}
         <section id="faq" className="mt-20 w-full max-w-3xl pt-6 text-left">
           <h2 className="text-xs font-bold uppercase tracking-widest text-indigo-400 text-center mb-2">
             Frequently Asked Questions
@@ -1010,6 +1022,11 @@ export function App() {
                     Playlist Batch Downloader
                   </button>
                 </li>
+                <li>
+                  <button type="button" onClick={() => handleNavSection('plans')} className="hover:text-indigo-400 transition text-left">
+                    Premium Plans (Coming Soon)
+                  </button>
+                </li>
                 <li><span className="hover:text-indigo-400 transition cursor-default">MP4 1080p Full HD</span></li>
                 <li><span className="hover:text-indigo-400 transition cursor-default">Audio MP3 Extraction</span></li>
                 <li><span className="hover:text-indigo-400 transition cursor-default">Streaming ZIP Engine</span></li>
@@ -1079,7 +1096,7 @@ export function App() {
                 @2026 YTdownloader All right reserved
               </p>
               <p className="text-[11px] text-slate-400 font-medium">
-                Developed with ❤️ by Santosh Koli
+                Developed by Santosh K. R. Koli
               </p>
             </div>
           </div>
