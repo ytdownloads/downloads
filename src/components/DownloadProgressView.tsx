@@ -62,7 +62,7 @@ export const DownloadProgressView: React.FC<DownloadProgressViewProps> = ({
     isItemAlreadyDownloaded(job.jobId)
   );
 
-  const timerRef = useRef<{ interval?: NodeJS.Timeout; timeout?: NodeJS.Timeout } | null>(null);
+  const timerRef = useRef<{ interval?: ReturnType<typeof setInterval>; timeout?: ReturnType<typeof setTimeout> } | null>(null);
 
   const { status, progress } = job;
   const isCompleted = status === 'completed';

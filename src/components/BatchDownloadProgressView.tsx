@@ -123,7 +123,7 @@ export const BatchDownloadProgressView: React.FC<BatchDownloadProgressViewProps>
   triggeredItemsRef.current = triggeredItemIds;
 
   // Active countdown timers map: itemId -> { interval, timeout }
-  const timersRef = useRef<Map<string, { interval: NodeJS.Timeout; timeout: NodeJS.Timeout }>>(
+  const timersRef = useRef<Map<string, { interval: ReturnType<typeof setInterval>; timeout: ReturnType<typeof setTimeout> }>>(
     new Map()
   );
 
