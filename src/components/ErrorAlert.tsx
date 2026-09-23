@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlertCircle, RotateCcw } from 'lucide-react';
+import { sanitizeErrorMessage } from '../utils/errorSanitizer';
 
 interface ErrorAlertProps {
   code?: string;
@@ -14,6 +15,8 @@ export const ErrorAlert: React.FC<ErrorAlertProps> = ({
   onRetry,
   onDismiss,
 }) => {
+  const displayMessage = sanitizeErrorMessage(message, code);
+
   return (
     <div
       className="w-full max-w-3xl rounded-2xl bg-rose-950/30 border border-rose-800/60 p-4 sm:p-5 shadow-xl transition animate-slide-up"
@@ -32,7 +35,7 @@ export const ErrorAlert: React.FC<ErrorAlertProps> = ({
               </span>
             )}
           </div>
-          <p className="mt-1 text-sm text-rose-300/90 leading-relaxed break-words">{message}</p>
+          <p className="mt-1 text-sm text-rose-300/90 leading-relaxed break-words">{displayMessage}</p>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
             {onRetry && (

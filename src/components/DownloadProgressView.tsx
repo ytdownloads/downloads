@@ -21,6 +21,7 @@ import {
   markItemAlreadyDownloaded,
   triggerBrowserFileDownload,
 } from '../services/autoDownload';
+import { sanitizeErrorMessage } from '../utils/errorSanitizer';
 
 interface DownloadProgressViewProps {
   job: DownloadJobData;
@@ -500,7 +501,8 @@ export const DownloadProgressView: React.FC<DownloadProgressViewProps> = ({
         <div className="mt-4 p-4 rounded-2xl bg-rose-950/40 border border-rose-800/60 flex items-start space-x-3 text-xs text-rose-300">
           <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
           <div>
-            <span className="font-semibold text-rose-200">[{job.error.code}]</span> {job.error.message}
+            <span className="font-semibold text-rose-200">[{job.error.code}]</span>{' '}
+            {sanitizeErrorMessage(job.error.message, job.error.code)}
           </div>
         </div>
       )}

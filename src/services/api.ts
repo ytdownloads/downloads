@@ -12,6 +12,7 @@ import {
   BatchJobData,
   ApiError,
 } from '../types/index';
+import { sanitizeErrorMessage } from '../utils/errorSanitizer';
 
 const RAW_API_URL =
   import.meta.env.VITE_API_URL ||
@@ -27,7 +28,7 @@ export class ApiServiceError extends Error {
   public readonly details?: unknown;
 
   constructor(code: string, message: string, details?: unknown) {
-    super(message);
+    super(sanitizeErrorMessage(message, code));
     this.name = 'ApiServiceError';
     this.code = code;
     this.details = details;
@@ -153,6 +154,9 @@ export function subscribeDownloadEvents(
     try {
       const messageEvent = event as MessageEvent;
       const data: DownloadJobData = JSON.parse(messageEvent.data);
+      if (data.error) {
+        data.error.message = sanitizeErrorMessage(data.error.message, data.error.code);
+      }
       callback(data);
     } catch (err) {
       console.error('Failed to parse SSE event data', err);
@@ -224,6 +228,14 @@ export async function getBatchStatus(batchJobId: string): Promise<BatchJobData> 
     const errCode = payload.error?.code || `HTTP_${response.status}`;
     const errMessage = payload.error?.message || 'Failed to fetch batch download status.';
     throw new ApiServiceError(errCode, errMessage, payload.error?.details);
+  }
+
+  if (payload.data?.items) {
+    for (const item of payload.data.items) {
+      if (item.error) {
+        item.error.message = sanitizeErrorMessage(item.error.message, item.error.code);
+      }
+    }
   }
 
   return payload.data;

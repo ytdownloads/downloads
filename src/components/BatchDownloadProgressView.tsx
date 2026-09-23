@@ -35,6 +35,7 @@ import {
   useAutoDownload,
   triggerBrowserFileDownload,
 } from '../services/autoDownload';
+import { sanitizeErrorMessage } from '../utils/errorSanitizer';
 
 const STORAGE_PREFIX_TRIGGERED = 'ytdl_autodl_triggered_';
 
@@ -233,7 +234,7 @@ export const BatchDownloadProgressView: React.FC<BatchDownloadProgressViewProps>
       setModalSelectedIds(new Set());
     } catch (err) {
       setModalApiError(
-        err instanceof Error ? err.message : 'Failed to add items to download queue.'
+        err instanceof Error ? sanitizeErrorMessage(err.message) : 'Failed to add items to download queue.'
       );
     } finally {
       setIsAddingItems(false);
@@ -771,7 +772,7 @@ export const BatchDownloadProgressView: React.FC<BatchDownloadProgressViewProps>
             <div>
               <h4 className="text-sm font-semibold text-rose-200">ZIP Archive Creation Failed</h4>
               <p className="text-xs text-rose-300/80 mt-0.5">
-                {zipStatusMessage || 'Could not assemble ZIP archive. You can still save individual completed videos directly from the queue below.'}
+                {sanitizeErrorMessage(zipStatusMessage) || 'Could not assemble ZIP archive. You can still save individual completed videos directly from the queue below.'}
               </p>
             </div>
           </div>
@@ -982,7 +983,7 @@ export const BatchDownloadProgressView: React.FC<BatchDownloadProgressViewProps>
                       {/* Failed Error Message */}
                       {isItemFailed && (
                         <p className="text-xs text-rose-400 mt-1 truncate">
-                          {item.error?.message || 'Download failed'}
+                          {sanitizeErrorMessage(item.error?.message, item.error?.code) || 'Download failed'}
                         </p>
                       )}
 
