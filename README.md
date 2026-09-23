@@ -61,12 +61,11 @@ A high-performance, modern web user interface for downloading YouTube videos and
    ```
    The compiled static files will be placed into the `dist/` directory.
 
-3. **Configure Production Backend URL:**
-   When deploying to GitHub Pages, Vercel, Netlify, or Cloudflare Pages, set the environment variable:
-   ```env
-   VITE_API_URL=https://ytdownloader-backend.onrender.com
-   ```
-   All API requests and SSE streams will automatically communicate with your deployed backend.
+3. **Production URL & Backend Configuration:**
+   - **Official Frontend URL**: `https://ytdownloads.github.io/downloads/`
+   - **Production Backend API**: `https://downloads-backend.onrender.com`
+   - **Vite Base Path**: `/downloads/`
+   All API requests, internal routing, and SSE streams communicate with the deployed backend under the `/downloads/` base path.
 
 ---
 
