@@ -666,7 +666,7 @@ export function App() {
             <div
               className={`inline-flex items-center space-x-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium border transition-colors duration-200 ${
                 backendStatus === 'online'
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 animate-pulse motion-reduce:animate-none'
                   : backendStatus === 'offline'
                   ? 'bg-rose-500/10 border-rose-500/30 text-rose-400'
                   : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
@@ -681,9 +681,9 @@ export function App() {
               )}
               <span className="hidden sm:inline">
                 {backendStatus === 'online'
-                  ? 'Backend Online'
+                  ? 'Server Online'
                   : backendStatus === 'offline'
-                  ? 'Backend Offline'
+                  ? 'Server Offline'
                   : 'Connecting...'}
               </span>
             </div>
