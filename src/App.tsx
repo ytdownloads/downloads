@@ -16,6 +16,8 @@ import {
   ChevronUp,
   FolderDown,
   ArrowLeft,
+  Menu,
+  X,
 } from 'lucide-react';
 import {
   checkBackendHealth,
@@ -38,17 +40,62 @@ import { PremiumComingSoon } from './components/PremiumComingSoon';
 
 type AppState = 'idle' | 'analyzing' | 'success' | 'downloading' | 'batch_downloading' | 'error';
 
+export const BASE_URL = import.meta.env.BASE_URL || '/';
+export const BASE_PATH = BASE_URL.replace(/\/$/, '');
+
+function parseRouteFromLocation(): {
+  legal: LegalRoute | null;
+  isQueueView: boolean;
+  batchId: string | null;
+} {
+  const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
+  const cleanPath = window.location.pathname.toLowerCase().replace(/\/$/, '');
+  const base = BASE_PATH.toLowerCase();
+
+  let rel = cleanPath;
+  if (base && rel.startsWith(base)) {
+    rel = rel.slice(base.length);
+  }
+  rel = rel.replace(/^\//, '');
+
+  const effective = hash || rel;
+
+  const legalRoutes: LegalRoute[] = ['privacy', 'terms', 'dmca', 'cookies', 'disclaimer'];
+  if (legalRoutes.includes(effective as LegalRoute)) {
+    return { legal: effective as LegalRoute, isQueueView: false, batchId: null };
+  }
+
+  if (effective === 'queue' || effective === 'session') {
+    return { legal: null, isQueueView: true, batchId: null };
+  }
+
+  const batchMatch = effective.match(/^(?:queue\/|batch\/)?([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i);
+  if (batchMatch && batchMatch[1]) {
+    return { legal: null, isQueueView: false, batchId: batchMatch[1] };
+  }
+
+  return { legal: null, isQueueView: false, batchId: null };
+}
+
 export function App() {
   const [url, setUrl] = useState('');
   const [state, setState] = useState<AppState>('idle');
   const [mediaData, setMediaData] = useState<MediaInfoResult | null>(null);
   const [downloadJob, setDownloadJob] = useState<DownloadJobData | null>(null);
   const [batchJob, setBatchJob] = useState<BatchJobData | null>(null);
+  const [isStartingBatch, setIsStartingBatch] = useState(false);
+  const [apiError, setApiError] = useState<{ code?: string; message: string } | null>(null);
+  const [inputError, setInputError] = useState<string | null>(null);
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+
   const [activePlaylistData, setActivePlaylistData] = useState<PlaylistMetadata | null>(() => {
-    const match = window.location.pathname.match(/^\/downloads\/([a-zA-Z0-9_-]+)/i);
-    if (match && match[1]) {
+    const route = parseRouteFromLocation();
+    if (route.batchId) {
       try {
-        const stored = sessionStorage.getItem(`ytdl_playlist_session_${match[1]}`);
+        const stored = sessionStorage.getItem(`ytdl_playlist_session_${route.batchId}`);
         if (stored) return JSON.parse(stored);
       } catch {
         // ignore
@@ -56,28 +103,12 @@ export function App() {
     }
     return null;
   });
-  const [isStartingBatch, setIsStartingBatch] = useState(false);
-  const [apiError, setApiError] = useState<{ code?: string; message: string } | null>(null);
-  const [inputError, setInputError] = useState<string | null>(null);
-  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
-  const [isDarkTheme, setIsDarkTheme] = useState(true);
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
-  // Legal routes state
-  const [legalRoute, setLegalRoute] = useState<LegalRoute | null>(() => {
-    const path = window.location.pathname.toLowerCase().replace(/\/$/, '');
-    if (path === '/privacy') return 'privacy';
-    if (path === '/terms') return 'terms';
-    if (path === '/dmca') return 'dmca';
-    if (path === '/cookies') return 'cookies';
-    if (path === '/disclaimer') return 'disclaimer';
-    return null;
-  });
+  // Legal routes state: only active if explicitly on a legal subroute
+  const [legalRoute, setLegalRoute] = useState<LegalRoute | null>(() => parseRouteFromLocation().legal);
 
-  const [isDownloadsView, setIsDownloadsView] = useState<boolean>(() => {
-    const path = window.location.pathname.toLowerCase().replace(/\/$/, '');
-    return path === '/downloads';
-  });
+  // Queue view state: only active if explicitly on /queue or /session
+  const [isDownloadsView, setIsDownloadsView] = useState<boolean>(() => parseRouteFromLocation().isQueueView);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const unsubscribeDownloadRef = useRef<(() => void) | null>(null);
@@ -154,13 +185,14 @@ export function App() {
   };
 
   useEffect(() => {
-    const pathname = window.location.pathname;
-    const initialMatch = pathname.match(/^\/downloads\/([a-zA-Z0-9_-]+)/i);
-    if (initialMatch && initialMatch[1]) {
-      loadBatchJob(initialMatch[1]);
-    } else if (pathname.toLowerCase().replace(/\/$/, '') === '/downloads') {
+    const route = parseRouteFromLocation();
+    if (route.batchId) {
+      loadBatchJob(route.batchId);
+    } else if (route.isQueueView) {
       setIsDownloadsView(true);
       document.title = 'YTdownloader — Downloads';
+    } else if (route.legal) {
+      setLegalRoute(route.legal);
     }
   }, []);
 
@@ -192,44 +224,24 @@ export function App() {
     }
 
     const handlePopState = () => {
-      const pathname = window.location.pathname;
-      const path = pathname.toLowerCase().replace(/\/$/, '');
-      if (path === '/privacy') {
-        setLegalRoute('privacy');
-        setIsDownloadsView(false);
-      } else if (path === '/terms') {
-        setLegalRoute('terms');
-        setIsDownloadsView(false);
-      } else if (path === '/dmca') {
-        setLegalRoute('dmca');
-        setIsDownloadsView(false);
-      } else if (path === '/cookies') {
-        setLegalRoute('cookies');
-        setIsDownloadsView(false);
-      } else if (path === '/disclaimer') {
-        setLegalRoute('disclaimer');
-        setIsDownloadsView(false);
-      } else if (path === '/downloads') {
-        setLegalRoute(null);
-        setIsDownloadsView(true);
-      } else {
-        setLegalRoute(null);
-        setIsDownloadsView(false);
-        const match = pathname.match(/^\/downloads\/([a-zA-Z0-9_-]+)/i);
-        if (match && match[1]) {
-          const jobId = match[1];
-          if (!batchJob || batchJob.batchJobId !== jobId) {
-            loadBatchJob(jobId);
-          }
-        } else if (path === '' || path === '/') {
-          if (unsubscribeBatchRef.current) {
-            unsubscribeBatchRef.current();
-            unsubscribeBatchRef.current = null;
-          }
-          setBatchJob(null);
-          setState('idle');
-          document.title = 'YTdownloader';
+      const route = parseRouteFromLocation();
+      setLegalRoute(route.legal);
+      setIsDownloadsView(route.isQueueView);
+
+      if (route.batchId) {
+        if (!batchJob || batchJob.batchJobId !== route.batchId) {
+          loadBatchJob(route.batchId);
         }
+      } else if (!route.legal && !route.isQueueView) {
+        if (unsubscribeBatchRef.current) {
+          unsubscribeBatchRef.current();
+          unsubscribeBatchRef.current = null;
+        }
+        setBatchJob(null);
+        if (state === 'batch_downloading') {
+          setState('idle');
+        }
+        document.title = 'YTdownloader';
       }
     };
 
@@ -437,8 +449,9 @@ export function App() {
 
       setBatchJob((prev) => (prev ? { ...prev, batchJobId } : null));
 
-      if (window.location.pathname !== `/downloads/${batchJobId}`) {
-        window.history.pushState({}, '', `/downloads/${batchJobId}`);
+      const target = `${BASE_PATH}/${batchJobId}`;
+      if (window.location.pathname !== target) {
+        window.history.pushState({}, '', target);
       }
       document.title = 'YTdownloader — Download Queue';
 
@@ -465,8 +478,9 @@ export function App() {
   };
 
   const navigateToLegal = (route: LegalRoute) => {
-    if (window.location.pathname !== `/${route}`) {
-      window.history.pushState({}, '', `/${route}`);
+    const target = `${BASE_PATH}/${route}`;
+    if (window.location.pathname !== target) {
+      window.history.pushState({}, '', target);
     }
     setLegalRoute(route);
     setIsDownloadsView(false);
@@ -475,14 +489,16 @@ export function App() {
 
   const navigateToDownloads = () => {
     if (batchJob?.batchJobId) {
-      if (window.location.pathname !== `/downloads/${batchJob.batchJobId}`) {
-        window.history.pushState({}, '', `/downloads/${batchJob.batchJobId}`);
+      const target = `${BASE_PATH}/${batchJob.batchJobId}`;
+      if (window.location.pathname !== target) {
+        window.history.pushState({}, '', target);
       }
       setState('batch_downloading');
       document.title = 'YTdownloader — Download Queue';
     } else {
-      if (window.location.pathname !== '/downloads') {
-        window.history.pushState({}, '', '/downloads');
+      const target = `${BASE_PATH}/queue`;
+      if (window.location.pathname !== target) {
+        window.history.pushState({}, '', target);
       }
       setIsDownloadsView(true);
       document.title = 'YTdownloader — Downloads';
@@ -496,8 +512,13 @@ export function App() {
       unsubscribeBatchRef.current();
       unsubscribeBatchRef.current = null;
     }
-    if (window.location.pathname !== '/') {
-      window.history.pushState({}, '', '/');
+    const currentPath = window.location.pathname;
+    const isAlreadyHome =
+      currentPath === BASE_PATH ||
+      currentPath === `${BASE_PATH}/` ||
+      currentPath === '/';
+    if (!isAlreadyHome) {
+      window.history.pushState({}, '', BASE_URL);
     }
     setLegalRoute(null);
     setIsDownloadsView(false);
@@ -510,7 +531,7 @@ export function App() {
   };
 
   const handleNavSection = (sectionId: string) => {
-    if (legalRoute) {
+    if (legalRoute || isDownloadsView || state === 'batch_downloading') {
       navigateToHome();
       setTimeout(() => scrollToSection(sectionId), 100);
     } else {
@@ -666,8 +687,72 @@ export function App() {
                   : 'Connecting...'}
               </span>
             </div>
+
+            {/* Mobile Menu Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 sm:p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 border border-slate-700/60 text-slate-300 hover:text-white transition-all duration-150 min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer"
+              title="Toggle navigation menu"
+              aria-label="Toggle navigation menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-4 h-4 text-indigo-400" />
+              ) : (
+                <Menu className="w-4 h-4 text-slate-300" />
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Navigation Dropdown */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-indigo-500/20 bg-[#0c1222]/98 backdrop-blur-xl px-4 py-3 space-y-2 animate-slide-down">
+            <button
+              type="button"
+              onClick={() => {
+                handleReset();
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition cursor-pointer"
+            >
+              Home
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                handleNavSection('features');
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition cursor-pointer"
+            >
+              Features
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                handleNavSection('plans');
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition cursor-pointer flex items-center justify-between"
+            >
+              <span>Plans</span>
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 leading-none">
+                Soon
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                handleNavSection('faq');
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition cursor-pointer"
+            >
+              FAQ
+            </button>
+          </div>
+        )}
       </header>
 
       {/* 2. Main Content Container */}
@@ -990,7 +1075,7 @@ export function App() {
               <ul className="space-y-2 text-xs text-slate-400">
                 <li>
                   <a
-                    href="/"
+                    href={BASE_URL}
                     onClick={(e) => {
                       e.preventDefault();
                       navigateToHome();
@@ -1002,7 +1087,7 @@ export function App() {
                 </li>
                 <li>
                   <a
-                    href={batchJob?.batchJobId ? `/downloads/${batchJob.batchJobId}` : '/downloads'}
+                    href={batchJob?.batchJobId ? `${BASE_PATH}/${batchJob.batchJobId}` : `${BASE_PATH}/queue`}
                     onClick={(e) => {
                       e.preventDefault();
                       navigateToDownloads();
