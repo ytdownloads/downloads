@@ -277,8 +277,8 @@ export function App() {
 
     try {
       const parsed = new URL(trimmedUrl);
-      if (parsed.protocol !== 'https:') {
-        setInputError('Only secure HTTPS URLs are supported (e.g. https://www.youtube.com/...).');
+      if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+        setInputError('Please enter a valid HTTP or HTTPS URL (e.g. https://www.youtube.com/...).');
         return;
       }
     } catch {
