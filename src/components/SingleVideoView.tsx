@@ -10,6 +10,7 @@ import {
   Sparkles,
   Check,
   Radio,
+  Loader2,
 } from 'lucide-react';
 import { SingleVideoMetadata } from '../types/index';
 import { useAutoDownload } from '../services/autoDownload';
@@ -73,6 +74,7 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
   const [selectedFormatId, setSelectedFormatId] = useState<string>(
     videoFormats[0]?.formatId || video.formats[0]?.formatId || ''
   );
+  const [isPreparing, setIsPreparing] = useState(false);
 
   const handleFormatTypeChange = (type: 'video' | 'audio') => {
     setFormatType(type);
@@ -81,6 +83,12 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
     } else {
       setSelectedFormatId(audioFormats[0]?.formatId || 'audio-best');
     }
+  };
+
+  const handleDownloadClick = () => {
+    if (!selectedFormatId || isPreparing) return;
+    setIsPreparing(true);
+    onStartDownload(selectedFormatId);
   };
 
   const currentSelectedFormat = video.formats.find((f) => f.formatId === selectedFormatId);
@@ -321,14 +329,24 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
       <div className="bg-[#0f172a]/95 border border-indigo-500/20 rounded-3xl p-4 sm:p-6 shadow-xl backdrop-blur-xl">
         <button
           type="button"
-          onClick={() => onStartDownload(selectedFormatId)}
-          disabled={!selectedFormatId}
-          className="w-full min-h-[52px] inline-flex items-center justify-center space-x-2.5 py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white cursor-pointer border border-indigo-500/40 text-base font-bold shadow-xl shadow-indigo-500/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={handleDownloadClick}
+          disabled={!selectedFormatId || isPreparing}
+          className="w-full min-h-[52px] inline-flex items-center justify-center space-x-2.5 py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white cursor-pointer border border-indigo-500/40 text-base font-bold shadow-xl shadow-indigo-500/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-75 disabled:cursor-not-allowed"
         >
-          <Download className="w-5 h-5" />
-          <span>
-            Download Video {currentSelectedFormat ? `• ${currentSelectedFormat.quality}` : ''}
-          </span>
+          {isPreparing ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Preparing Download...</span>
+            </>
+          ) : (
+            <>
+              <Download className="w-5 h-5" />
+              <span>
+                {formatType === 'audio' ? 'Download Audio' : 'Download Video'}{' '}
+                {currentSelectedFormat ? `• ${currentSelectedFormat.quality}` : ''}
+              </span>
+            </>
+          )}
         </button>
 
         {/* Security & Engine Notice */}

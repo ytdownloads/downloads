@@ -37,6 +37,7 @@ import { BatchDownloadProgressView } from './components/BatchDownloadProgressVie
 import { ErrorAlert } from './components/ErrorAlert';
 import { LegalPageView, LegalRoute } from './components/LegalPageView';
 import { PremiumComingSoon } from './components/PremiumComingSoon';
+import { SplashScreen } from './components/SplashScreen';
 
 type AppState = 'idle' | 'analyzing' | 'success' | 'downloading' | 'batch_downloading' | 'error';
 
@@ -90,6 +91,9 @@ export function App() {
   const [isDarkTheme, setIsDarkTheme] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [showSplash, setShowSplash] = useState(true);
+  const [justPasted, setJustPasted] = useState(false);
+  const isYoutubeUrlValid = /(?:youtube\.com\/(?:watch\?.*v=|shorts\/|embed\/|playlist\?.*list=)|youtu\.be\/)/i.test(url.trim());
 
   const [activePlaylistData, setActivePlaylistData] = useState<PlaylistMetadata | null>(() => {
     const route = parseRouteFromLocation();
@@ -257,6 +261,8 @@ export function App() {
           setUrl(text.trim());
           setInputError(null);
           setApiError(null);
+          setJustPasted(true);
+          setTimeout(() => setJustPasted(false), 1500);
         }
       } else {
         setInputError('Clipboard access restricted. Please paste with Ctrl+V into the field.');
@@ -595,8 +601,18 @@ export function App() {
     <div
       className={`min-h-screen ${
         isDarkTheme ? 'bg-[#070b14]' : 'bg-[#0a0f1d]'
-      } text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-300`}
+      } text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative`}
     >
+      {/* 0. Premium Splash Screen on initial load */}
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+
+      {/* Ambient Background Radial Glow */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 select-none">
+        <div className="absolute -top-36 left-1/2 -translate-x-1/2 w-[720px] sm:w-[1100px] h-[480px] bg-gradient-to-b from-indigo-500/15 via-purple-600/10 to-transparent rounded-full blur-3xl" />
+        <div className="absolute top-1/4 -left-48 w-80 sm:w-96 h-80 sm:h-96 bg-blue-600/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 -right-48 w-80 sm:w-96 h-80 sm:h-96 bg-purple-600/10 rounded-full blur-3xl" />
+      </div>
+
       {/* 1. Header with YouTube-Style Red Logo, Nav Links, Theme Toggle */}
       <header className="border-b border-indigo-500/20 bg-[#0c1222]/90 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between">
@@ -664,20 +680,23 @@ export function App() {
             </button>
 
             <div
-              className={`inline-flex items-center space-x-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium border transition-colors duration-200 ${
+              className={`inline-flex items-center space-x-2 px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium border transition-colors duration-200 select-none ${
                 backendStatus === 'online'
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 animate-pulse motion-reduce:animate-none'
+                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                   : backendStatus === 'offline'
                   ? 'bg-rose-500/10 border-rose-500/30 text-rose-400'
                   : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
               }`}
             >
               {backendStatus === 'online' ? (
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                </span>
               ) : backendStatus === 'offline' ? (
-                <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
               ) : (
-                <RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin shrink-0" />
+                <RefreshCw className="w-3 h-3 text-amber-400 animate-spin shrink-0" />
               )}
               <span className="hidden sm:inline">
                 {backendStatus === 'online'
@@ -793,7 +812,15 @@ export function App() {
             </button>
           </div>
         ) : (
-          <div className="w-full flex flex-col items-center text-center">
+          <div className="w-full flex flex-col items-center text-center animate-slide-up">
+            {/* YouTube Visual Motion Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-indigo-500/30 text-xs font-semibold text-indigo-300 shadow-lg shadow-indigo-500/10 mb-4 animate-subtle-float">
+              <div className="h-4 w-6 rounded bg-[#FF0000] flex items-center justify-center shadow-xs">
+                <div className="w-0 h-0 border-y-[3px] border-y-transparent border-l-[5px] border-l-white ml-0.5" />
+              </div>
+              <span>Native yt-dlp & FFmpeg Processing</span>
+            </div>
+
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white max-w-3xl leading-tight sm:leading-tight">
               Download YouTube Videos <br />
               <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
@@ -801,59 +828,69 @@ export function App() {
               </span>
             </h1>
 
-        <p className="mt-4 text-sm sm:text-base text-slate-400 max-w-2xl leading-relaxed">
-          Paste any YouTube video or playlist link and download in high quality.
-        </p>
+            <p className="mt-4 text-sm sm:text-base text-slate-400 max-w-2xl leading-relaxed">
+              Paste any YouTube video or playlist link and download in high quality.
+            </p>
 
-        {/* URL Input Box */}
-        <form
-          onSubmit={handleAnalyze}
-          className="mt-8 sm:mt-10 w-full max-w-3xl"
-          noValidate
-        >
-          <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-2xl blur opacity-35 group-hover:opacity-65 transition-opacity duration-300"></div>
+            {/* URL Input Box */}
+            <form
+              onSubmit={handleAnalyze}
+              className="mt-8 sm:mt-10 w-full max-w-3xl"
+              noValidate
+            >
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-2xl blur opacity-35 group-hover:opacity-65 transition-opacity duration-300"></div>
 
-            <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-[#0f172a] border border-indigo-500/30 hover:border-indigo-500/50 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-500/20 rounded-2xl p-2 gap-2 shadow-2xl transition duration-200">
-              <div className="relative flex-1 min-w-0 flex items-center">
-                <input
-                  type="url"
-                  value={url}
-                  disabled={state === 'analyzing' || state === 'downloading'}
-                  onChange={(e) => {
-                    setUrl(e.target.value);
-                    if (inputError) setInputError(null);
-                    if (apiError) setApiError(null);
-                  }}
-                  placeholder="Paste YouTube URL"
-                  className="w-full bg-transparent px-3 sm:px-4 py-3 text-slate-100 placeholder-slate-500 text-sm sm:text-base focus:outline-none focus:ring-0 disabled:opacity-60 font-sans truncate"
-                  aria-label="Paste YouTube URL"
-                />
-                {url && state !== 'analyzing' && state !== 'downloading' && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUrl('');
-                      handleReset();
-                    }}
-                    className="mr-2 text-xs text-slate-400 hover:text-slate-200 px-2 py-1 rounded focus:outline-none shrink-0 transition-colors cursor-pointer"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
+                <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-[#0f172a] border border-indigo-500/30 hover:border-indigo-500/50 input-focus-glow rounded-2xl p-2 gap-2 shadow-2xl transition duration-200">
+                  <div className="relative flex-1 min-w-0 flex items-center">
+                    <input
+                      type="url"
+                      value={url}
+                      disabled={state === 'analyzing' || state === 'downloading'}
+                      onChange={(e) => {
+                        setUrl(e.target.value);
+                        if (inputError) setInputError(null);
+                        if (apiError) setApiError(null);
+                      }}
+                      placeholder="Paste YouTube URL"
+                      className="w-full bg-transparent px-3 sm:px-4 py-3 text-slate-100 placeholder-slate-500 text-sm sm:text-base focus:outline-none focus:ring-0 disabled:opacity-60 font-sans truncate"
+                      aria-label="Paste YouTube URL"
+                    />
+                    {isYoutubeUrlValid && (
+                      <div className="mr-2 inline-flex items-center text-emerald-400 gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 animate-check-pop select-none shrink-0" title="Valid YouTube URL format">
+                        <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <span className="hidden sm:inline">Valid</span>
+                      </div>
+                    )}
+                    {url && state !== 'analyzing' && state !== 'downloading' && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUrl('');
+                          handleReset();
+                        }}
+                        className="mr-2 text-xs text-slate-400 hover:text-slate-200 px-2 py-1 rounded focus:outline-none shrink-0 transition-colors cursor-pointer"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handlePaste}
-                  disabled={state === 'analyzing' || state === 'downloading'}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-4 py-3 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 active:scale-95 text-slate-300 hover:text-white text-sm font-medium border border-slate-700/70 transition duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 min-h-[44px] cursor-pointer"
-                  title="Paste from clipboard"
-                >
-                  <Clipboard className="w-4 h-4" />
-                  <span>Paste</span>
-                </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handlePaste}
+                      disabled={state === 'analyzing' || state === 'downloading'}
+                      className={`flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-4 py-3 rounded-xl ${
+                        justPasted
+                          ? 'bg-emerald-600/30 border-emerald-500/50 text-emerald-300'
+                          : 'bg-slate-800/90 hover:bg-slate-700/90 text-slate-300 hover:text-white border-slate-700/70'
+                      } active:scale-95 text-sm font-medium border transition duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 min-h-[44px] cursor-pointer`}
+                      title="Paste from clipboard"
+                    >
+                      <Clipboard className="w-4 h-4" />
+                      <span>{justPasted ? 'Pasted!' : 'Paste'}</span>
+                    </button>
 
                 <button
                   type="submit"
@@ -894,15 +931,36 @@ export function App() {
         {/* 3. Results / Active Download Section */}
         <section className="mt-8 sm:mt-10 w-full flex justify-center animate-slide-up">
           {state === 'analyzing' && (
-            <div className="w-full max-w-xl py-12 px-6 rounded-3xl bg-[#0f172a]/80 border border-indigo-500/30 flex flex-col items-center justify-center space-y-4 shadow-2xl backdrop-blur-xl">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <Loader2 className="w-6 h-6 text-indigo-400 animate-spin" />
+            <div className="w-full max-w-3xl rounded-3xl bg-[#0f172a]/90 border border-indigo-500/30 p-5 sm:p-7 shadow-2xl backdrop-blur-xl animate-fade-in">
+              <div className="flex flex-col sm:flex-row items-center gap-5">
+                {/* Skeleton Thumbnail */}
+                <div className="relative w-full sm:w-64 aspect-video rounded-2xl bg-slate-800/80 border border-slate-700/60 overflow-hidden shrink-0">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-700/30 to-transparent animate-shimmer" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+                  </div>
+                </div>
+                {/* Skeleton Meta Lines */}
+                <div className="flex-1 w-full space-y-3.5">
+                  <div className="h-5 bg-slate-800/90 rounded-lg w-3/4 overflow-hidden relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-700/30 to-transparent animate-shimmer" />
+                  </div>
+                  <div className="h-4 bg-slate-800/70 rounded-lg w-1/2 overflow-hidden relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-700/30 to-transparent animate-shimmer" />
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <div className="h-6 w-20 bg-slate-800/60 rounded-md overflow-hidden relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-700/30 to-transparent animate-shimmer" />
+                    </div>
+                    <div className="h-6 w-24 bg-slate-800/60 rounded-md overflow-hidden relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-700/30 to-transparent animate-shimmer" />
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-1 text-center">
-                <h3 className="text-base font-bold text-white">Analyzing YouTube URL</h3>
-                <p className="text-xs text-slate-400">
-                  Inspecting content type, video streams, and audio options with yt-dlp...
-                </p>
+              <div className="mt-6 pt-5 border-t border-slate-800/80 flex items-center justify-center space-x-2 text-xs sm:text-sm text-indigo-300 font-medium">
+                <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+                <span>Inspecting media streams & formats with yt-dlp...</span>
               </div>
             </div>
           )}
@@ -954,8 +1012,8 @@ export function App() {
             Key Features
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
-            <div className="p-5 rounded-2xl bg-[#0f172a]/90 border border-indigo-500/20 hover:border-indigo-500/40 transition shadow-lg">
-              <div className="h-10 w-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-3">
+            <div className="p-5 rounded-2xl bg-[#0f172a]/90 border border-indigo-500/20 hover:border-indigo-500/40 glow-card active:scale-[0.98] transition shadow-lg group cursor-default">
+              <div className="h-10 w-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
                 <Zap className="w-5 h-5 text-blue-400" />
               </div>
               <h3 className="font-bold text-white text-base">Super Fast</h3>
@@ -964,8 +1022,8 @@ export function App() {
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#0f172a]/90 border border-purple-500/20 hover:border-purple-500/40 transition shadow-lg">
-              <div className="h-10 w-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-3">
+            <div className="p-5 rounded-2xl bg-[#0f172a]/90 border border-purple-500/20 hover:border-purple-500/40 glow-card active:scale-[0.98] transition shadow-lg group cursor-default">
+              <div className="h-10 w-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
                 <Layers className="w-5 h-5 text-purple-400" />
               </div>
               <h3 className="font-bold text-white text-base">Supports Playlists</h3>
@@ -974,8 +1032,8 @@ export function App() {
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#0f172a]/90 border border-indigo-500/20 hover:border-indigo-500/40 transition shadow-lg">
-              <div className="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-3">
+            <div className="p-5 rounded-2xl bg-[#0f172a]/90 border border-indigo-500/20 hover:border-indigo-500/40 glow-card active:scale-[0.98] transition shadow-lg group cursor-default">
+              <div className="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
                 <Sparkles className="w-5 h-5 text-indigo-400" />
               </div>
               <h3 className="font-bold text-white text-base">High Quality</h3>
@@ -984,8 +1042,8 @@ export function App() {
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#0f172a]/90 border border-emerald-500/20 hover:border-emerald-500/40 transition shadow-lg">
-              <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-3">
+            <div className="p-5 rounded-2xl bg-[#0f172a]/90 border border-emerald-500/20 hover:border-emerald-500/40 glow-card active:scale-[0.98] transition shadow-lg group cursor-default">
+              <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
                 <Gift className="w-5 h-5 text-emerald-400" />
               </div>
               <h3 className="font-bold text-white text-base">100% Free</h3>

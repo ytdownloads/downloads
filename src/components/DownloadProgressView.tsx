@@ -421,12 +421,12 @@ export const DownloadProgressView: React.FC<DownloadProgressViewProps> = ({
         </div>
 
         {/* The Progress Bar */}
-        <div className="w-full h-3 rounded-full bg-slate-800 overflow-hidden border border-slate-700/60 p-0.5">
+        <div className="w-full h-3 rounded-full bg-slate-800 overflow-hidden border border-slate-700/60 p-0.5 relative">
           {isIndeterminate && isActive ? (
             <div className="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-400 to-purple-500 w-full animate-pulse" />
           ) : (
             <div
-              className={`h-full rounded-full transition-all duration-300 ${
+              className={`h-full rounded-full transition-all duration-300 relative overflow-hidden ${
                 isCompleted
                   ? 'bg-gradient-to-r from-emerald-500 to-teal-400'
                   : isFailed
@@ -446,7 +446,11 @@ export const DownloadProgressView: React.FC<DownloadProgressViewProps> = ({
                     : 0
                 }%`,
               }}
-            />
+            >
+              {isActive && !isCompleted && (
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+              )}
+            </div>
           )}
         </div>
 
@@ -532,6 +536,22 @@ export const DownloadProgressView: React.FC<DownloadProgressViewProps> = ({
 
         {isCompleted && (
           <div className="w-full space-y-3">
+            {/* Download Complete State Banner */}
+            <div className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm font-semibold animate-check-pop shadow-md shadow-emerald-500/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
+                  <Check className="w-4 h-4 text-emerald-400 stroke-[3]" />
+                </div>
+                <div>
+                  <span className="font-bold text-white block sm:inline">Download Complete</span>
+                  <span className="text-slate-400 text-xs hidden sm:inline sm:ml-2">• Verified with native yt-dlp/FFmpeg</span>
+                </div>
+              </div>
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">
+                100% Ready
+              </span>
+            </div>
+
             {/* Auto download countdown banner */}
             {autoDownload && countdown !== null && (
               <div className="w-full flex items-center justify-between gap-2 p-3 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 text-indigo-300 text-sm font-semibold">
