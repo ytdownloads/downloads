@@ -625,7 +625,7 @@ export function App() {
             <div className="h-7 w-10 sm:h-8 sm:w-11 rounded-lg bg-[#FF0000] flex items-center justify-center shadow-lg shadow-red-600/30 hover:scale-105 active:scale-95 transition-transform duration-150 shrink-0">
               <div className="w-0 h-0 border-y-[5px] border-y-transparent border-l-[9px] border-l-white ml-0.5"></div>
             </div>
-            <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white">
+            <span className="font-extrabold text-base sm:text-xl tracking-tight text-white shrink-0">
               YTdownloader
             </span>
           </div>
@@ -664,11 +664,11 @@ export function App() {
           </nav>
 
           {/* Right actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <button
               type="button"
               onClick={() => setIsDarkTheme(!isDarkTheme)}
-              className="p-2 sm:p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 border border-slate-700/60 text-slate-300 hover:text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer"
+              className="p-1.5 sm:p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 border border-slate-700/60 text-slate-300 hover:text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[36px] min-w-[36px] sm:min-h-[40px] sm:min-w-[40px] flex items-center justify-center cursor-pointer"
               title="Toggle theme"
               aria-label="Toggle theme"
             >
@@ -680,7 +680,7 @@ export function App() {
             </button>
 
             <div
-              className={`inline-flex items-center space-x-2 px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium border transition-colors duration-200 select-none ${
+              className={`inline-flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 py-1 rounded-full text-xs font-medium border transition-colors duration-200 select-none shrink-0 ${
                 backendStatus === 'online'
                   ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                   : backendStatus === 'offline'
@@ -711,7 +711,7 @@ export function App() {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 sm:p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 border border-slate-700/60 text-slate-300 hover:text-white transition-all duration-150 min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer"
+              className="md:hidden p-1.5 sm:p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 border border-slate-700/60 text-slate-300 hover:text-white transition-all duration-150 min-h-[36px] min-w-[36px] sm:min-h-[40px] sm:min-w-[40px] flex items-center justify-center cursor-pointer"
               title="Toggle navigation menu"
               aria-label="Toggle navigation menu"
             >
