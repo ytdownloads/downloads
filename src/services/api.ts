@@ -46,8 +46,12 @@ export async function checkBackendHealth(): Promise<HealthCheckResponse> {
     throw new Error(`Health check failed with status: ${response.status}`);
   }
 
-  return response.json();
+  const raw = await response.json() as any;
+  const status = raw.status ?? raw.data?.status ?? '';
+  const success = !!raw.success;
+  return { success, status } as HealthCheckResponse;
 }
+
 
 export async function analyzeUrl(url: string, signal?: AbortSignal): Promise<MediaInfoResult> {
   const response = await fetch(`${API_BASE}/info`, {

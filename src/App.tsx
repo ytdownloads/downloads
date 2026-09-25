@@ -680,7 +680,7 @@ export function App() {
             </button>
 
             <div
-              className={`inline-flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 py-1 rounded-full text-xs font-medium border transition-colors duration-200 select-none shrink-0 ${
+              className={`inline-flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 py-1 rounded-full text-xs font-medium border transition-colors duration-200 select-none whitespace-nowrap shrink-0 ${
                 backendStatus === 'online'
                   ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                   : backendStatus === 'offline'
