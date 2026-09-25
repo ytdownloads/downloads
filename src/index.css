@@ -170,35 +170,100 @@ body {
   animation: subtleFloat 4s ease-in-out infinite;
 }
 
-@keyframes devCreditFadeIn {
-  from {
+/* Developer Signature Premium Animation V2 */
+@keyframes devSignatureReveal {
+  0% {
     opacity: 0;
     transform: translateY(6px);
   }
-  to {
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.4));
+  }
+  100% {
     opacity: 1;
     transform: translateY(0);
+    filter: drop-shadow(0 0 0 transparent);
+  }
+}
+
+@keyframes devShimmerOnce {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes devUnderlineDraw {
+  0% {
+    width: 0%;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    width: 100%;
+    opacity: 1;
   }
 }
 
 .animate-dev-credit {
-  animation: devCreditFadeIn 500ms var(--ease-spring) 350ms forwards;
+  display: inline-block;
   opacity: 0;
+  animation: devSignatureReveal 800ms cubic-bezier(0.16, 1, 0.3, 1) 300ms forwards;
 }
 
 .dev-credit-badge {
+  position: relative;
   display: inline-block;
+  background: linear-gradient(
+    90deg,
+    #94a3b8 0%,
+    #cbd5e1 35%,
+    #ffffff 50%,
+    #a5b4fc 65%,
+    #94a3b8 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: devShimmerOnce 1200ms ease-out 300ms 1 normal forwards;
   transition: transform 200ms ease, filter 200ms ease, text-shadow 200ms ease;
 }
 
-.dev-credit-badge:hover {
-  transform: translateY(-1px) scale(1.02);
-  filter: brightness(1.15);
-  text-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+.dev-credit-badge::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  height: 1.5px;
+  width: 0%;
+  background: linear-gradient(90deg, #6366f1, #a855f7);
+  border-radius: 9999px;
+  animation: devUnderlineDraw 800ms cubic-bezier(0.16, 1, 0.3, 1) 500ms forwards;
+  transition: box-shadow 200ms ease, background 200ms ease;
 }
 
+/* Desktop hover */
+@media (hover: hover) and (pointer: fine) {
+  .dev-credit-badge:hover {
+    transform: translateY(-1px) scale(1.02);
+    filter: brightness(1.2);
+    text-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+  }
+  .dev-credit-badge:hover::after {
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.7);
+    background: linear-gradient(90deg, #818cf8, #c084fc);
+  }
+}
+
+/* Mobile tap active feedback */
 .dev-credit-badge:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
+  filter: brightness(0.95);
 }
 
 /* Staggered Delay Utilities */
@@ -258,6 +323,19 @@ body {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+  .dev-credit-badge {
+    animation: none !important;
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: #94a3b8 !important;
+    color: #94a3b8 !important;
+  }
+  .dev-credit-badge::after {
+    animation: none !important;
+    width: 100% !important;
+    opacity: 0.5 !important;
+    box-shadow: none !important;
   }
   .dev-credit-badge:hover {
     transform: none !important;
