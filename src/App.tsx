@@ -625,7 +625,7 @@ export function App() {
             <div className="h-7 w-10 sm:h-8 sm:w-11 rounded-lg bg-[#FF0000] flex items-center justify-center shadow-lg shadow-red-600/30 hover:scale-105 active:scale-95 transition-transform duration-150 shrink-0">
               <div className="w-0 h-0 border-y-[5px] border-y-transparent border-l-[9px] border-l-white ml-0.5"></div>
             </div>
-            <span className="font-extrabold text-base sm:text-xl tracking-tight text-white shrink-0">
+            <span className="font-extrabold text-xs min-[360px]:text-base sm:text-xl tracking-tight text-white shrink-0">
               YTdownloader
             </span>
           </div>
