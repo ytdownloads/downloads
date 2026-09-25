@@ -1,6 +1,7 @@
 export interface HealthCheckResponse {
   success: boolean;
   status: string;
+  ready?: boolean;
 }
 
 export interface ApiError {

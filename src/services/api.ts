@@ -48,8 +48,9 @@ export async function checkBackendHealth(): Promise<HealthCheckResponse> {
 
   const raw = await response.json() as any;
   const status = raw.status ?? raw.data?.status ?? '';
-  const success = !!raw.success;
-  return { success, status } as HealthCheckResponse;
+  const ready = raw.ready ?? raw.data?.ready ?? false;
+  const success = Boolean(raw.success && ready === true && status === 'ok');
+  return { success, status, ready } as HealthCheckResponse;
 }
 
 

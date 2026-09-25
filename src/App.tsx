@@ -120,24 +120,31 @@ export function App() {
 
   useEffect(() => {
     let isMounted = true;
-    checkBackendHealth()
-      .then((res) => {
-        if (isMounted) {
-          if (res.success && res.status === 'ok') {
-            setBackendStatus('online');
-          } else {
+
+    const pollHealth = () => {
+      checkBackendHealth()
+        .then((res) => {
+          if (isMounted) {
+            if (res.success && res.status === 'ok') {
+              setBackendStatus('online');
+            } else {
+              setBackendStatus('offline');
+            }
+          }
+        })
+        .catch(() => {
+          if (isMounted) {
             setBackendStatus('offline');
           }
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setBackendStatus('offline');
-        }
-      });
+        });
+    };
+
+    pollHealth();
+    const interval = setInterval(pollHealth, 30000);
 
     return () => {
       isMounted = false;
+      clearInterval(interval);
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -316,6 +323,9 @@ export function App() {
       setState('error');
       if (err instanceof ApiServiceError) {
         setApiError({ code: err.code, message: err.message });
+        if (err.code === 'BOT_DETECTION_BLOCKED') {
+          setBackendStatus('offline');
+        }
       } else {
         setApiError({
           code: 'CLIENT_ERROR',
@@ -703,7 +713,7 @@ export function App() {
                   ? 'Server Online'
                   : backendStatus === 'offline'
                   ? 'Server Offline'
-                  : 'Connecting...'}
+                  : 'Checking Server...'}
               </span>
             </div>
 
