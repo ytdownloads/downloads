@@ -10,8 +10,6 @@ import {
   AlertCircle,
   RefreshCw,
   Loader2,
-  Sun,
-  Moon,
   ChevronDown,
   ChevronUp,
   FolderDown,
@@ -38,6 +36,7 @@ import { ErrorAlert } from './components/ErrorAlert';
 import { LegalPageView, LegalRoute } from './components/LegalPageView';
 import { PremiumComingSoon } from './components/PremiumComingSoon';
 import { SplashScreen } from './components/SplashScreen';
+import { ThemeSwitcher, ResolvedTheme } from './components/ThemeSwitcher';
 
 type AppState = 'idle' | 'analyzing' | 'success' | 'downloading' | 'batch_downloading' | 'error';
 
@@ -88,7 +87,7 @@ export function App() {
   const [apiError, setApiError] = useState<{ code?: string; message: string } | null>(null);
   const [inputError, setInputError] = useState<string | null>(null);
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
-  const [isDarkTheme, setIsDarkTheme] = useState(true);
+  const [currentTheme, setCurrentTheme] = useState<ResolvedTheme>('dark');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [showSplash, setShowSplash] = useState(true);
@@ -610,8 +609,8 @@ export function App() {
   return (
     <div
       className={`min-h-screen ${
-        isDarkTheme ? 'bg-[#070b14]' : 'bg-[#0a0f1d]'
-      } text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative`}
+        currentTheme === 'dark' ? 'bg-[#070b14] text-slate-100' : 'bg-[#f8fafc] text-slate-900'
+      } flex flex-col font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative`}
     >
       {/* 0. Premium Splash Screen on initial load */}
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
@@ -675,19 +674,7 @@ export function App() {
 
           {/* Right actions */}
           <div className="flex items-center gap-1 sm:gap-3 shrink-0">
-            <button
-              type="button"
-              onClick={() => setIsDarkTheme(!isDarkTheme)}
-              className="p-1 sm:p-2.5 rounded-lg sm:rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 border border-slate-700/60 text-slate-300 hover:text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[30px] min-w-[30px] sm:min-h-[40px] sm:min-w-[40px] flex items-center justify-center cursor-pointer"
-              title="Toggle theme"
-              aria-label="Toggle theme"
-            >
-              {isDarkTheme ? (
-                <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400" />
-              )}
-            </button>
+            <ThemeSwitcher onThemeChange={(t) => setCurrentTheme(t)} />
 
             <div
               className={`inline-flex items-center space-x-1 sm:space-x-2 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium border transition-colors duration-200 select-none whitespace-nowrap shrink-0 ${

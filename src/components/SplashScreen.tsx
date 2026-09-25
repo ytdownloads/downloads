@@ -49,7 +49,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#070b14] transition-opacity duration-300 ease-out select-none ${
+      className={`splash-screen-container fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#070b14] transition-opacity duration-300 ease-out select-none ${
         stage === 'fading' ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
       aria-label="Welcome to YTdownloader"

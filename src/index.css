@@ -3,13 +3,21 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: dark light;
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --duration-fast: 150ms;
   --duration-normal: 250ms;
   --duration-medium: 350ms;
   --duration-slow: 500ms;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+html.light {
+  color-scheme: light;
 }
 
 html {
@@ -26,6 +34,11 @@ body {
   overflow-x: hidden;
   min-height: 100vh;
   min-height: 100dvh;
+}
+
+html.light body {
+  background-color: #f8fafc;
+  color: #0f172a;
 }
 
 /* ==========================================================================
@@ -348,4 +361,246 @@ body {
   .glow-card:hover {
     transform: none !important;
   }
+}
+
+/* ==========================================================================
+   Theme Icon Animations
+   ========================================================================== */
+@keyframes themeIconRotate {
+  0% {
+    transform: rotate(-35deg) scale(0.85);
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-theme-icon {
+  animation: themeIconRotate 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-theme-icon {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   Comprehensive Light Theme Overrides
+   ========================================================================== */
+
+html.light .bg-\[\#070b14\]:not(.splash-screen-container),
+html.light .bg-\[\#0a0f1d\],
+html.light .bg-\[\#0b0f19\] {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Splash Screen Cinematic Theme Lock */
+.splash-screen-container {
+  background-color: #070b14 !important;
+  color: #f8fafc !important;
+}
+
+.splash-screen-container h1 {
+  color: #ffffff !important;
+}
+
+.splash-screen-container p {
+  color: #94a3b8 !important;
+}
+
+.splash-screen-container .bg-clip-text {
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Header */
+html.light header {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-bottom-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light header .text-white {
+  color: #0f172a !important;
+}
+
+html.light nav button,
+html.light nav a {
+  color: #475569 !important;
+}
+
+html.light nav button:hover,
+html.light nav a:hover {
+  color: #4f46e5 !important;
+}
+
+/* Hero Section */
+html.light h1.text-white,
+html.light h1 span.text-white,
+html.light h2.text-white,
+html.light h3.text-white,
+html.light h4.text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light .text-slate-200 {
+  color: #1e293b !important;
+}
+
+html.light .text-slate-100 {
+  color: #0f172a !important;
+}
+
+/* Cards and Panels */
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/70,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/50,
+html.light .bg-slate-900 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .bg-\[\#0f172a\],
+html.light .bg-\[\#0c1222\],
+html.light .bg-\[\#0c1222\]\/90,
+html.light .bg-\[\#0c1222\]\/98 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Inputs */
+html.light input[type="url"],
+html.light input[type="text"],
+html.light input {
+  color: #0f172a !important;
+}
+
+html.light input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Secondary & Auxiliary Buttons */
+html.light .bg-slate-800\/90,
+html.light .bg-slate-800\/80,
+html.light .bg-slate-800\/60,
+html.light .bg-slate-800 {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html.light .bg-slate-800\/90:hover,
+html.light .bg-slate-800\/80:hover,
+html.light .bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html.light .border-slate-800\/80,
+html.light .border-slate-800,
+html.light .border-slate-700\/70,
+html.light .border-slate-700\/60,
+html.light .border-slate-700 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Feature Cards & FAQ */
+html.light .rounded-2xl.border {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Footer */
+html.light footer {
+  background-color: #f1f5f9 !important;
+  border-top-color: #e2e8f0 !important;
+}
+
+html.light footer h3,
+html.light footer h4 {
+  color: #0f172a !important;
+}
+
+html.light footer button,
+html.light footer a {
+  color: #64748b !important;
+}
+
+html.light footer button:hover,
+html.light footer a:hover {
+  color: #4f46e5 !important;
+}
+
+html.light .border-slate-800\/80 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .font-semibold.text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light .dev-credit-badge {
+  color: #475569 !important;
+}
+
+html.light .dev-credit-badge:hover {
+  color: #4f46e5 !important;
+}
+
+html.light .dev-credit-badge::after {
+  background: linear-gradient(90deg, #6366f1, #a855f7) !important;
+}
+
+/* Ensure vibrant colored badges & buttons preserve readable white text */
+html.light button[type="submit"],
+html.light button.bg-gradient-to-r,
+html.light button.bg-gradient-to-r span,
+html.light button.bg-gradient-to-r svg,
+html.light .bg-indigo-600,
+html.light .bg-red-600,
+html.light .bg-\[\#FF0000\] {
+  color: #ffffff !important;
+}
+
+html.light button[type="submit"] span,
+html.light button[type="submit"] svg {
+  color: #ffffff !important;
+}
+
+/* Ensure text gradient clips work cleanly in light theme */
+html.light .bg-clip-text {
+  -webkit-text-fill-color: transparent !important;
+}
+
+html.light .from-blue-400.via-indigo-400.to-purple-400 {
+  background-image: linear-gradient(to right, #1d4ed8, #4338ca, #7e22ce) !important;
+}
+
+/* Format & Option Cards */
+html.light .bg-slate-950\/60,
+html.light .bg-slate-950 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html.light select,
+html.light option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
 }
