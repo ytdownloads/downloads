@@ -9,25 +9,35 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
 
+  // Track initial render timestamp to compensate for React mount/render latency
+  const mountTimestampRef = useRef<number>(
+    typeof performance !== 'undefined' ? performance.now() : Date.now()
+  );
+
   useEffect(() => {
     const prefersReducedMotion =
       typeof window !== 'undefined' &&
       window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    const elapsedSinceRender = now - mountTimestampRef.current;
+
     // Visual duration requirement: EXACTLY 10 SECONDS (10,000ms).
-    // In normal motion: visible for 9,700ms, then a smooth 300ms fade-out finishes at exactly 10,000ms.
-    // In reduced motion: visible for full 10,000ms without motion/fade, unmounting at exactly 10,000ms.
+    // Compensates for React hydration/commit latency so total duration is exactly 10,000ms.
+    const totalRemaining = Math.max(0, 10000 - elapsedSinceRender);
+    const fadeDelay = Math.max(0, totalRemaining - 300);
+
     const fadeTimer = prefersReducedMotion
       ? null
       : setTimeout(() => {
           setStage('fading');
-        }, 9700);
+        }, fadeDelay);
 
     const finishTimer = setTimeout(() => {
       setStage('hidden');
       if (onFinishRef.current) onFinishRef.current();
-    }, 10000);
+    }, totalRemaining);
 
     return () => {
       if (fadeTimer) clearTimeout(fadeTimer);
