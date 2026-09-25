@@ -151,7 +151,7 @@ body {
 }
 
 .animate-splash-progress {
-  animation: splashProgress 800ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: splashProgress 9.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .animate-shimmer {

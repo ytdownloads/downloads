@@ -8,18 +8,27 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const [stage, setStage] = useState<'visible' | 'fading' | 'hidden'>('visible');
 
   useEffect(() => {
-    // Show splash for 750ms, then initiate smooth 250ms fade-out (total ~1000ms)
-    const fadeTimer = setTimeout(() => {
-      setStage('fading');
-    }, 750);
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Visual duration requirement: EXACTLY 10 SECONDS (10,000ms).
+    // In normal motion: visible for 9,700ms, then a smooth 300ms fade-out finishes at exactly 10,000ms.
+    // In reduced motion: visible for full 10,000ms without motion/fade, unmounting at exactly 10,000ms.
+    const fadeTimer = prefersReducedMotion
+      ? null
+      : setTimeout(() => {
+          setStage('fading');
+        }, 9700);
 
     const finishTimer = setTimeout(() => {
       setStage('hidden');
       if (onFinish) onFinish();
-    }, 1000);
+    }, 10000);
 
     return () => {
-      clearTimeout(fadeTimer);
+      if (fadeTimer) clearTimeout(fadeTimer);
       clearTimeout(finishTimer);
     };
   }, [onFinish]);
