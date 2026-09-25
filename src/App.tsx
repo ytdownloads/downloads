@@ -615,17 +615,17 @@ export function App() {
 
       {/* 1. Header with YouTube-Style Red Logo, Nav Links, Theme Toggle */}
       <header className="border-b border-indigo-500/20 bg-[#0c1222]/90 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-2 sm:px-6 h-16 flex items-center justify-between gap-1 sm:gap-4">
           {/* Logo & Name */}
           <div
-            className="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer select-none"
+            className="flex items-center space-x-1.5 sm:space-x-3 cursor-pointer select-none shrink-0"
             onClick={handleReset}
           >
             {/* YouTube-style Red Logo with White Play Triangle */}
-            <div className="h-7 w-10 sm:h-8 sm:w-11 rounded-lg bg-[#FF0000] flex items-center justify-center shadow-lg shadow-red-600/30 hover:scale-105 active:scale-95 transition-transform duration-150 shrink-0">
-              <div className="w-0 h-0 border-y-[5px] border-y-transparent border-l-[9px] border-l-white ml-0.5"></div>
+            <div className="h-6 w-8 min-[360px]:h-7 min-[360px]:w-10 sm:h-8 sm:w-11 rounded-md sm:rounded-lg bg-[#FF0000] flex items-center justify-center shadow-md sm:shadow-lg shadow-red-600/30 hover:scale-105 active:scale-95 transition-transform duration-150 shrink-0">
+              <div className="w-0 h-0 border-y-[4px] min-[360px]:border-y-[5px] border-y-transparent border-l-[7px] min-[360px]:border-l-[9px] border-l-white ml-0.5"></div>
             </div>
-            <span className="font-extrabold text-xs min-[360px]:text-base sm:text-xl tracking-tight text-white shrink-0">
+            <span className="font-extrabold text-[13px] min-[360px]:text-base sm:text-xl tracking-tight text-white shrink-0">
               YTdownloader
             </span>
           </div>
@@ -664,23 +664,23 @@ export function App() {
           </nav>
 
           {/* Right actions */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-3 shrink-0">
             <button
               type="button"
               onClick={() => setIsDarkTheme(!isDarkTheme)}
-              className="p-1.5 sm:p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 border border-slate-700/60 text-slate-300 hover:text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[36px] min-w-[36px] sm:min-h-[40px] sm:min-w-[40px] flex items-center justify-center cursor-pointer"
+              className="p-1 sm:p-2.5 rounded-lg sm:rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 border border-slate-700/60 text-slate-300 hover:text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[30px] min-w-[30px] sm:min-h-[40px] sm:min-w-[40px] flex items-center justify-center cursor-pointer"
               title="Toggle theme"
               aria-label="Toggle theme"
             >
               {isDarkTheme ? (
-                <Sun className="w-4 h-4 text-amber-400" />
+                <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
               ) : (
-                <Moon className="w-4 h-4 text-indigo-400" />
+                <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400" />
               )}
             </button>
 
             <div
-              className={`inline-flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 py-1 rounded-full text-xs font-medium border transition-colors duration-200 select-none whitespace-nowrap shrink-0 ${
+              className={`inline-flex items-center space-x-1 sm:space-x-2 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium border transition-colors duration-200 select-none whitespace-nowrap shrink-0 ${
                 backendStatus === 'online'
                   ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                   : backendStatus === 'offline'
@@ -689,16 +689,16 @@ export function App() {
               }`}
             >
               {backendStatus === 'online' ? (
-                <span className="relative flex h-2 w-2 shrink-0">
+                <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2 shrink-0">
                   <span className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-emerald-500" />
                 </span>
               ) : backendStatus === 'offline' ? (
-                <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
+                <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-rose-500 shrink-0" />
               ) : (
                 <RefreshCw className="w-3 h-3 text-amber-400 animate-spin shrink-0" />
               )}
-              <span className="inline text-[11px] sm:text-xs">
+              <span className="inline text-[10px] sm:text-xs">
                 {backendStatus === 'online'
                   ? 'Server Online'
                   : backendStatus === 'offline'
@@ -711,14 +711,14 @@ export function App() {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-1.5 sm:p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 border border-slate-700/60 text-slate-300 hover:text-white transition-all duration-150 min-h-[36px] min-w-[36px] sm:min-h-[40px] sm:min-w-[40px] flex items-center justify-center cursor-pointer"
+              className="md:hidden p-1 sm:p-2.5 rounded-lg sm:rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 border border-slate-700/60 text-slate-300 hover:text-white transition-all duration-150 min-h-[30px] min-w-[30px] sm:min-h-[40px] sm:min-w-[40px] flex items-center justify-center cursor-pointer"
               title="Toggle navigation menu"
               aria-label="Toggle navigation menu"
             >
               {isMobileMenuOpen ? (
-                <X className="w-4 h-4 text-indigo-400" />
+                <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400" />
               ) : (
-                <Menu className="w-4 h-4 text-slate-300" />
+                <Menu className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-300" />
               )}
             </button>
           </div>
