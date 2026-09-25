@@ -42,6 +42,21 @@ function formatDate(dateStr?: string): string {
   return `${year}-${month}-${day}`;
 }
 
+export function formatDisplayDuration(durationText?: string, durationSeconds?: number): string {
+  if (durationText && durationText !== '0:00' && durationText !== '00:00' && durationText !== '--:--') {
+    return durationText;
+  }
+  if (durationSeconds && durationSeconds > 0) {
+    const total = Math.floor(durationSeconds);
+    const hrs = Math.floor(total / 3600);
+    const mins = Math.floor((total % 3600) / 60);
+    const secs = total % 60;
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return hrs > 0 ? `${hrs}:${pad(mins)}:${pad(secs)}` : `${mins}:${pad(secs)}`;
+  }
+  return '--:--';
+}
+
 export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
   video,
   onReset,
@@ -137,7 +152,7 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
             )}
             <div className="absolute bottom-2.5 right-2.5 bg-black/85 px-2 py-0.5 rounded-md text-xs font-mono font-medium text-white flex items-center space-x-1 backdrop-blur-xs">
               <Clock className="w-3 h-3 text-slate-300" />
-              <span>{video.durationText}</span>
+              <span>{formatDisplayDuration(video.durationText, video.duration)}</span>
             </div>
           </div>
 
@@ -170,7 +185,7 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
 
               <span className="inline-flex items-center space-x-1 bg-slate-800/60 px-2.5 py-1 rounded-lg border border-slate-700/50 font-mono">
                 <Clock className="w-3.5 h-3.5 text-slate-400" />
-                <span>Duration: {video.durationText}</span>
+                <span>Duration: {formatDisplayDuration(video.durationText, video.duration)}</span>
               </span>
 
               <a

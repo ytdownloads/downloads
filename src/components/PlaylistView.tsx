@@ -323,7 +323,7 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 
                   {/* Duration */}
                   <span className="text-xs font-mono text-slate-400 shrink-0 pl-1">
-                    {item.durationText}
+                    {item.durationText && item.durationText !== '0:00' && item.durationText !== '00:00' ? item.durationText : '--:--'}
                   </span>
                 </div>
               );
