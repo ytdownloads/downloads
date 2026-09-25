@@ -698,7 +698,7 @@ export function App() {
               ) : (
                 <RefreshCw className="w-3 h-3 text-amber-400 animate-spin shrink-0" />
               )}
-              <span className="hidden sm:inline">
+              <span className="inline text-[11px] sm:text-xs">
                 {backendStatus === 'online'
                   ? 'Server Online'
                   : backendStatus === 'offline'
