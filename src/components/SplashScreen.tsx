@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 interface SplashScreenProps {
   onFinish?: () => void;
@@ -6,6 +6,8 @@ interface SplashScreenProps {
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const [stage, setStage] = useState<'visible' | 'fading' | 'hidden'>('visible');
+  const onFinishRef = useRef(onFinish);
+  onFinishRef.current = onFinish;
 
   useEffect(() => {
     const prefersReducedMotion =
@@ -24,14 +26,14 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
     const finishTimer = setTimeout(() => {
       setStage('hidden');
-      if (onFinish) onFinish();
+      if (onFinishRef.current) onFinishRef.current();
     }, 10000);
 
     return () => {
       if (fadeTimer) clearTimeout(fadeTimer);
       clearTimeout(finishTimer);
     };
-  }, [onFinish]);
+  }, []);
 
   if (stage === 'hidden') return null;
 
