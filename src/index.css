@@ -151,7 +151,7 @@ body {
 }
 
 .animate-splash-progress {
-  animation: splashProgress 9.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: splashProgress 4.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .animate-shimmer {
@@ -168,6 +168,37 @@ body {
 
 .animate-subtle-float {
   animation: subtleFloat 4s ease-in-out infinite;
+}
+
+@keyframes devCreditFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-dev-credit {
+  animation: devCreditFadeIn 500ms var(--ease-spring) 350ms forwards;
+  opacity: 0;
+}
+
+.dev-credit-badge {
+  display: inline-block;
+  transition: transform 200ms ease, filter 200ms ease, text-shadow 200ms ease;
+}
+
+.dev-credit-badge:hover {
+  transform: translateY(-1px) scale(1.02);
+  filter: brightness(1.15);
+  text-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+}
+
+.dev-credit-badge:active {
+  transform: scale(0.98);
 }
 
 /* Staggered Delay Utilities */
@@ -222,6 +253,19 @@ body {
   }
   .animate-subtle-float {
     animation: none !important;
+  }
+  .animate-dev-credit {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .dev-credit-badge:hover {
+    transform: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+  }
+  .dev-credit-badge:active {
+    transform: none !important;
   }
   .glow-card:hover {
     transform: none !important;

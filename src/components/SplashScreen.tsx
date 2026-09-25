@@ -23,9 +23,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
     const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
     const elapsedSinceRender = now - mountTimestampRef.current;
 
-    // Visual duration requirement: EXACTLY 10 SECONDS (10,000ms).
-    // Compensates for React hydration/commit latency so total duration is exactly 10,000ms.
-    const totalRemaining = Math.max(0, 10000 - elapsedSinceRender);
+    // Visual duration requirement: EXACTLY 5 SECONDS (5,000ms).
+    // Compensates for React hydration/commit latency so total duration is exactly 5,000ms.
+    const totalRemaining = Math.max(0, 5000 - elapsedSinceRender);
     const fadeDelay = Math.max(0, totalRemaining - 300);
 
     const fadeTimer = prefersReducedMotion

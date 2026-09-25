@@ -1238,9 +1238,11 @@ export function App() {
               <p className="font-semibold text-slate-300">
                 @2026 YTdownloader All right reserved
               </p>
-              <p className="text-[11px] text-slate-400 font-medium">
-                Developed by Santosh K. R. Koli
-              </p>
+              <div className="animate-dev-credit">
+                <span className="dev-credit-badge text-[11px] text-slate-400 hover:text-indigo-300 font-medium cursor-default select-none transition-colors">
+                  Developed by Santosh Koli
+                </span>
+              </div>
             </div>
           </div>
         </div>
