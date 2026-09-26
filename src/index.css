@@ -332,6 +332,10 @@ html.light body {
   .animate-subtle-float {
     animation: none !important;
   }
+  .animate-splash-progress {
+    animation: none !important;
+    width: 100% !important;
+  }
   .animate-dev-credit {
     animation: none !important;
     opacity: 1 !important;
@@ -391,25 +395,48 @@ html.light body {
    Comprehensive Light Theme Overrides
    ========================================================================== */
 
-html.light .bg-\[\#070b14\]:not(.splash-screen-container),
+html.light .bg-\[\#070b14\],
 html.light .bg-\[\#0a0f1d\],
 html.light .bg-\[\#0b0f19\] {
   background-color: #f8fafc !important;
   color: #0f172a !important;
 }
 
-/* Splash Screen Cinematic Theme Lock */
-.splash-screen-container {
+/* Splash Screen Theme Support */
+html.light .splash-screen-container {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.light .splash-screen-container h1 {
+  color: #0f172a !important;
+}
+
+html.light .splash-screen-container p {
+  color: #475569 !important;
+}
+
+html.light .splash-screen-container .splash-track {
+  background-color: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.dark .splash-screen-container {
   background-color: #070b14 !important;
   color: #f8fafc !important;
 }
 
-.splash-screen-container h1 {
+html.dark .splash-screen-container h1 {
   color: #ffffff !important;
 }
 
-.splash-screen-container p {
+html.dark .splash-screen-container p {
   color: #94a3b8 !important;
+}
+
+html.dark .splash-screen-container .splash-track {
+  background-color: #1e293b !important;
+  border-color: rgba(51, 65, 85, 0.5) !important;
 }
 
 .splash-screen-container .bg-clip-text {

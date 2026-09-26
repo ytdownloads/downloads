@@ -36,7 +36,15 @@ import { ErrorAlert } from './components/ErrorAlert';
 import { LegalPageView, LegalRoute } from './components/LegalPageView';
 import { PremiumComingSoon } from './components/PremiumComingSoon';
 import { SplashScreen } from './components/SplashScreen';
-import { ThemeSwitcher, ResolvedTheme } from './components/ThemeSwitcher';
+import { ThemeSwitcher, ResolvedTheme, resolveEffectiveTheme, getInitialThemePreference } from './components/ThemeSwitcher';
+
+function getInitialEffectiveTheme(): ResolvedTheme {
+  if (typeof document !== 'undefined') {
+    if (document.documentElement.classList.contains('light')) return 'light';
+    if (document.documentElement.classList.contains('dark')) return 'dark';
+  }
+  return resolveEffectiveTheme(getInitialThemePreference());
+}
 
 type AppState = 'idle' | 'analyzing' | 'success' | 'downloading' | 'batch_downloading' | 'error';
 
@@ -87,7 +95,7 @@ export function App() {
   const [apiError, setApiError] = useState<{ code?: string; message: string } | null>(null);
   const [inputError, setInputError] = useState<string | null>(null);
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
-  const [currentTheme, setCurrentTheme] = useState<ResolvedTheme>('dark');
+  const [currentTheme, setCurrentTheme] = useState<ResolvedTheme>(getInitialEffectiveTheme);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [showSplash, setShowSplash] = useState(true);
@@ -613,7 +621,7 @@ export function App() {
       } flex flex-col font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative`}
     >
       {/* 0. Premium Splash Screen on initial load */}
-      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} theme={currentTheme} />}
 
       {/* Ambient Background Radial Glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 select-none">
