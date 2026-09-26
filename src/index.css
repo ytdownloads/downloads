@@ -474,12 +474,25 @@ html.light .bg-slate-900 {
 }
 
 html.light .bg-\[\#0f172a\],
+html.light .bg-\[\#0f172a\]\/95,
+html.light .bg-\[\#0f172a\]\/90,
+html.light .bg-\[\#0f172a\]\/80,
 html.light .bg-\[\#0c1222\],
 html.light .bg-\[\#0c1222\]\/90,
-html.light .bg-\[\#0c1222\]\/98 {
+html.light .bg-\[\#0c1222\]\/98,
+html.light .bg-\[\#101322\]\/90,
+html.light .bg-\[\#101322\] {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .from-\[\#161a31\].to-\[\#0e1122\],
+html.light .from-\[\#13192f\].to-\[\#0c1020\] {
+  background-image: none !important;
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03) !important;
 }
 
 /* Inputs */
@@ -524,6 +537,120 @@ html.light .rounded-2xl.border {
   border-color: #e2e8f0 !important;
 }
 
+/* FAQ Light Mode Enhancements */
+html.light #faq button {
+  color: #0f172a !important;
+}
+
+html.light #faq button span {
+  color: #0f172a !important;
+}
+
+html.light #faq button:hover span {
+  color: #4f46e5 !important;
+}
+
+html.light #faq .rounded-2xl {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light #faq .border-t {
+  border-top-color: #e2e8f0 !important;
+}
+
+/* Legal Article Light Theme */
+html.light article {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+html.light article h1,
+html.light article h2,
+html.light article h3,
+html.light article h4 {
+  color: #0f172a !important;
+}
+
+html.light article p,
+html.light article li,
+html.light article span {
+  color: #334155 !important;
+}
+
+html.light article strong {
+  color: #0f172a !important;
+}
+
+html.light article .border-b,
+html.light article .border-slate-800 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light article .bg-indigo-950\/20,
+html.light article .bg-indigo-950\/30,
+html.light article .bg-indigo-500\/15 {
+  background-color: #eef2ff !important;
+  border-color: #c7d2fe !important;
+  color: #3730a3 !important;
+}
+
+html.light article .text-indigo-200,
+html.light article .text-indigo-300 {
+  color: #4338ca !important;
+}
+
+html.light article .text-slate-400 {
+  color: #64748b !important;
+}
+
+/* Tinted Container Badges in Light Mode */
+html.light .bg-indigo-950\/20,
+html.light .bg-indigo-950\/25,
+html.light .bg-indigo-950\/30,
+html.light .bg-indigo-950\/40,
+html.light .bg-indigo-950\/60 {
+  background-color: #eef2ff !important;
+  border-color: #c7d2fe !important;
+  color: #312e81 !important;
+}
+
+html.light .bg-emerald-950\/10,
+html.light .bg-emerald-950\/20,
+html.light .bg-emerald-950\/30 {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #065f46 !important;
+}
+
+html.light .bg-rose-950\/10,
+html.light .bg-rose-950\/20,
+html.light .bg-rose-950\/30,
+html.light .bg-rose-950\/40 {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #9f1239 !important;
+}
+
+html.light .bg-blue-950\/30 {
+  background-color: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1e40af !important;
+}
+
+html.light .bg-purple-950\/30,
+html.light .bg-purple-950\/40 {
+  background-color: #faf5ff !important;
+  border-color: #e9d5ff !important;
+  color: #581c87 !important;
+}
+
+html.light .divide-slate-800\/60,
+html.light .divide-slate-800 {
+  border-color: #e2e8f0 !important;
+}
+
 /* Footer */
 html.light footer {
   background-color: #f1f5f9 !important;
@@ -553,16 +680,30 @@ html.light .font-semibold.text-slate-300 {
   color: #334155 !important;
 }
 
+/* Developer signature badge in light mode */
 html.light .dev-credit-badge {
-  color: #475569 !important;
+  background: linear-gradient(
+    90deg,
+    #1e293b 0%,
+    #334155 35%,
+    #4338ca 50%,
+    #312e81 65%,
+    #1e293b 100%
+  ) !important;
+  background-size: 200% auto !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: #1e293b !important;
 }
 
 html.light .dev-credit-badge:hover {
-  color: #4f46e5 !important;
+  filter: brightness(1.2) !important;
+  text-shadow: 0 0 10px rgba(99, 102, 241, 0.3) !important;
 }
 
 html.light .dev-credit-badge::after {
-  background: linear-gradient(90deg, #6366f1, #a855f7) !important;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed) !important;
+  box-shadow: 0 0 8px rgba(79, 70, 229, 0.4) !important;
 }
 
 /* Ensure vibrant colored badges & buttons preserve readable white text */

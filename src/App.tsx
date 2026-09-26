@@ -623,7 +623,7 @@ export function App() {
       </div>
 
       {/* 1. Header with YouTube-Style Red Logo, Nav Links, Theme Toggle */}
-      <header className="border-b border-indigo-500/20 bg-[#0c1222]/90 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-slate-200 dark:border-indigo-500/20 bg-white/95 dark:bg-[#0c1222]/90 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-2 sm:px-6 h-16 flex items-center justify-between gap-1 sm:gap-4">
           {/* Logo & Name */}
           <div
@@ -634,39 +634,39 @@ export function App() {
             <div className="h-6 w-8 min-[360px]:h-7 min-[360px]:w-10 sm:h-8 sm:w-11 rounded-md sm:rounded-lg bg-[#FF0000] flex items-center justify-center shadow-md sm:shadow-lg shadow-red-600/30 hover:scale-105 active:scale-95 transition-transform duration-150 shrink-0">
               <div className="w-0 h-0 border-y-[4px] min-[360px]:border-y-[5px] border-y-transparent border-l-[7px] min-[360px]:border-l-[9px] border-l-white ml-0.5"></div>
             </div>
-            <span className="font-extrabold text-[13px] min-[360px]:text-base sm:text-xl tracking-tight text-white shrink-0">
+            <span className="font-extrabold text-[13px] min-[360px]:text-base sm:text-xl tracking-tight text-slate-900 dark:text-white shrink-0">
               YTdownloader
             </span>
           </div>
 
           {/* Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-300">
+          <nav className="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600 dark:text-slate-300">
             <button
               type="button"
               onClick={handleReset}
-              className="hover:text-indigo-400 transition-colors duration-150 cursor-pointer"
+              className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-150 cursor-pointer"
             >
               Home
             </button>
             <button
               type="button"
               onClick={() => handleNavSection('features')}
-              className="hover:text-indigo-400 transition-colors duration-150 cursor-pointer"
+              className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-150 cursor-pointer"
             >
               Features
             </button>
             <button
               type="button"
               onClick={() => handleNavSection('plans')}
-              className="hover:text-indigo-400 transition-colors duration-150 cursor-pointer inline-flex items-center gap-1.5"
+              className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-150 cursor-pointer inline-flex items-center gap-1.5"
             >
               <span>Plans</span>
-              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 leading-none">Soon</span>
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 border border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30 leading-none">Soon</span>
             </button>
             <button
               type="button"
               onClick={() => handleNavSection('faq')}
-              className="hover:text-indigo-400 transition-colors duration-150 cursor-pointer"
+              className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-150 cursor-pointer"
             >
               FAQ
             </button>
@@ -677,23 +677,23 @@ export function App() {
             <ThemeSwitcher onThemeChange={(t) => setCurrentTheme(t)} />
 
             <div
-              className={`inline-flex items-center space-x-1 sm:space-x-2 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium border transition-colors duration-200 select-none whitespace-nowrap shrink-0 ${
+              className={`inline-flex items-center space-x-1 sm:space-x-2 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold border transition-colors duration-200 select-none whitespace-nowrap shrink-0 ${
                 backendStatus === 'online'
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-400'
                   : backendStatus === 'offline'
-                  ? 'bg-rose-500/10 border-rose-500/30 text-rose-400'
-                  : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                  ? 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-500/10 dark:border-rose-500/30 dark:text-rose-400'
+                  : 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-400'
               }`}
             >
               {backendStatus === 'online' ? (
                 <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2 shrink-0">
-                  <span className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-emerald-500" />
+                  <span className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-emerald-500 dark:bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-emerald-600 dark:bg-emerald-500" />
                 </span>
               ) : backendStatus === 'offline' ? (
-                <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-rose-500 shrink-0" />
+                <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-rose-600 dark:bg-rose-500 shrink-0" />
               ) : (
-                <RefreshCw className="w-3 h-3 text-amber-400 animate-spin shrink-0" />
+                <RefreshCw className="w-3 h-3 text-amber-600 dark:text-amber-400 animate-spin shrink-0" />
               )}
               <span className="inline text-[10px] sm:text-xs">
                 {backendStatus === 'online'
@@ -708,14 +708,14 @@ export function App() {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-1 sm:p-2.5 rounded-lg sm:rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 border border-slate-700/60 text-slate-300 hover:text-white transition-all duration-150 min-h-[30px] min-w-[30px] sm:min-h-[40px] sm:min-w-[40px] flex items-center justify-center cursor-pointer"
+              className="md:hidden p-1 sm:p-2.5 rounded-lg sm:rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 active:scale-95 border border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-150 min-h-[30px] min-w-[30px] sm:min-h-[40px] sm:min-w-[40px] flex items-center justify-center cursor-pointer"
               title="Toggle navigation menu"
               aria-label="Toggle navigation menu"
             >
               {isMobileMenuOpen ? (
-                <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400" />
+                <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600 dark:text-indigo-400" />
               ) : (
-                <Menu className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-300" />
+                <Menu className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 dark:text-slate-300" />
               )}
             </button>
           </div>
@@ -723,14 +723,14 @@ export function App() {
 
         {/* Mobile Navigation Dropdown */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-indigo-500/20 bg-[#0c1222]/98 backdrop-blur-xl px-4 py-3 space-y-2 animate-slide-down">
+          <div className="md:hidden border-t border-slate-200 dark:border-indigo-500/20 bg-white/98 dark:bg-[#0c1222]/98 backdrop-blur-xl px-4 py-3 space-y-2 animate-slide-down shadow-xl">
             <button
               type="button"
               onClick={() => {
                 handleReset();
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition cursor-pointer"
+              className="w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition cursor-pointer"
             >
               Home
             </button>
@@ -740,7 +740,7 @@ export function App() {
                 handleNavSection('features');
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition cursor-pointer"
+              className="w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition cursor-pointer"
             >
               Features
             </button>
@@ -750,10 +750,10 @@ export function App() {
                 handleNavSection('plans');
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition cursor-pointer flex items-center justify-between"
+              className="w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition cursor-pointer flex items-center justify-between"
             >
               <span>Plans</span>
-              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 leading-none">
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 border border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30 leading-none">
                 Soon
               </span>
             </button>
@@ -763,7 +763,7 @@ export function App() {
                 handleNavSection('faq');
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition cursor-pointer"
+              className="w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition cursor-pointer"
             >
               FAQ
             </button>
@@ -789,13 +789,13 @@ export function App() {
             />
           </div>
         ) : isDownloadsView ? (
-          <div className="w-full max-w-xl py-12 px-6 rounded-3xl bg-[#0f172a]/95 border border-indigo-500/30 flex flex-col items-center justify-center space-y-5 shadow-2xl backdrop-blur-xl mx-auto my-12 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <FolderDown className="w-8 h-8 text-indigo-400" />
+          <div className="w-full max-w-xl py-12 px-6 rounded-3xl bg-white dark:bg-[#0f172a]/95 border border-slate-200 dark:border-indigo-500/30 flex flex-col items-center justify-center space-y-5 shadow-sm dark:shadow-2xl backdrop-blur-xl mx-auto my-12 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-600/20 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center shadow-sm dark:shadow-lg dark:shadow-indigo-500/20">
+              <FolderDown className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
             </div>
             <div className="space-y-2 max-w-md">
-              <h2 className="text-xl font-bold text-white tracking-tight">No Active Download Session</h2>
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">No Active Download Session</h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 You don't have an active single video or playlist batch download in progress. Paste a YouTube URL on the home page to start downloading.
               </p>
             </div>
@@ -811,21 +811,21 @@ export function App() {
         ) : (
           <div className="w-full flex flex-col items-center text-center animate-slide-up">
             {/* YouTube Visual Motion Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-indigo-500/30 text-xs font-semibold text-indigo-300 shadow-lg shadow-indigo-500/10 mb-4 animate-subtle-float">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-indigo-500/30 text-xs font-semibold text-indigo-700 dark:text-indigo-300 shadow-sm dark:shadow-lg dark:shadow-indigo-500/10 mb-4 animate-subtle-float">
               <div className="h-4 w-6 rounded bg-[#FF0000] flex items-center justify-center shadow-xs">
                 <div className="w-0 h-0 border-y-[3px] border-y-transparent border-l-[5px] border-l-white ml-0.5" />
               </div>
               <span>Native yt-dlp & FFmpeg Processing</span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white max-w-3xl leading-tight sm:leading-tight">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white max-w-3xl leading-tight sm:leading-tight">
               Download YouTube Videos <br />
-              <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
                 Fast, Free, and Easy
               </span>
             </h1>
 
-            <p className="mt-4 text-sm sm:text-base text-slate-400 max-w-2xl leading-relaxed">
+            <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
               Paste any YouTube video or playlist link and download in high quality.
             </p>
 
@@ -836,9 +836,9 @@ export function App() {
               noValidate
             >
               <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-2xl blur opacity-35 group-hover:opacity-65 transition-opacity duration-300"></div>
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-2xl blur opacity-25 dark:opacity-35 group-hover:opacity-45 dark:group-hover:opacity-65 transition-opacity duration-300"></div>
 
-                <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-[#0f172a] border border-indigo-500/30 hover:border-indigo-500/50 input-focus-glow rounded-2xl p-2 gap-2 shadow-2xl transition duration-200">
+                <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-white dark:bg-[#0f172a] border border-slate-300 dark:border-indigo-500/30 hover:border-slate-400 dark:hover:border-indigo-500/50 input-focus-glow rounded-2xl p-2 gap-2 shadow-lg dark:shadow-2xl transition duration-200">
                   <div className="relative flex-1 min-w-0 flex items-center">
                     <input
                       type="url"
@@ -850,11 +850,11 @@ export function App() {
                         if (apiError) setApiError(null);
                       }}
                       placeholder="Paste YouTube URL"
-                      className="w-full bg-transparent px-3 sm:px-4 py-3 text-slate-100 placeholder-slate-500 text-sm sm:text-base focus:outline-none focus:ring-0 disabled:opacity-60 font-sans truncate"
+                      className="w-full bg-transparent px-3 sm:px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm sm:text-base focus:outline-none focus:ring-0 disabled:opacity-60 font-sans truncate"
                       aria-label="Paste YouTube URL"
                     />
                     {isYoutubeUrlValid && (
-                      <div className="mr-2 inline-flex items-center text-emerald-400 gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 animate-check-pop select-none shrink-0" title="Valid YouTube URL format">
+                      <div className="mr-2 inline-flex items-center text-emerald-700 dark:text-emerald-400 gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-300 dark:border-emerald-500/30 animate-check-pop select-none shrink-0" title="Valid YouTube URL format">
                         <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" />
                         <span className="hidden sm:inline">Valid</span>
                       </div>
@@ -866,7 +866,7 @@ export function App() {
                           setUrl('');
                           handleReset();
                         }}
-                        className="mr-2 text-xs text-slate-400 hover:text-slate-200 px-2 py-1 rounded focus:outline-none shrink-0 transition-colors cursor-pointer"
+                        className="mr-2 text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 px-2 py-1 rounded focus:outline-none shrink-0 transition-colors cursor-pointer"
                       >
                         Clear
                       </button>
@@ -880,8 +880,8 @@ export function App() {
                       disabled={state === 'analyzing' || state === 'downloading'}
                       className={`flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-4 py-3 rounded-xl ${
                         justPasted
-                          ? 'bg-emerald-600/30 border-emerald-500/50 text-emerald-300'
-                          : 'bg-slate-800/90 hover:bg-slate-700/90 text-slate-300 hover:text-white border-slate-700/70'
+                          ? 'bg-emerald-100 dark:bg-emerald-600/30 border-emerald-300 dark:border-emerald-500/50 text-emerald-800 dark:text-emerald-300'
+                          : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/90 dark:hover:bg-slate-700/90 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border-slate-300 dark:border-slate-700/70'
                       } active:scale-95 text-sm font-medium border transition duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 min-h-[44px] cursor-pointer`}
                       title="Paste from clipboard"
                     >
@@ -912,7 +912,7 @@ export function App() {
 
           {inputError && (
             <div
-              className="mt-3 flex items-center justify-center space-x-2 text-rose-400 text-sm animate-fade-in"
+              className="mt-3 flex items-center justify-center space-x-2 text-rose-600 dark:text-rose-400 text-sm animate-fade-in"
               role="alert"
             >
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -920,7 +920,7 @@ export function App() {
             </div>
           )}
 
-          <div className="mt-3 text-xs text-slate-500">
+          <div className="mt-3 text-xs text-slate-600 dark:text-slate-500">
             Supports YouTube videos and playlists • Paste URL to auto-detect
           </div>
         </form>
@@ -1005,46 +1005,46 @@ export function App() {
 
         {/* 4. Features Section */}
         <section id="features" className="mt-20 w-full pt-6">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-indigo-400 text-center mb-6">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 text-center mb-6">
             Key Features
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
-            <div className="p-5 rounded-2xl bg-[#0f172a]/90 border border-indigo-500/20 hover:border-indigo-500/40 glow-card active:scale-[0.98] transition shadow-lg group cursor-default">
-              <div className="h-10 w-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
-                <Zap className="w-5 h-5 text-blue-400" />
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#0f172a]/90 border border-slate-200 dark:border-indigo-500/20 hover:border-indigo-500/40 glow-card active:scale-[0.98] transition shadow-sm hover:shadow-md dark:shadow-lg group cursor-default">
+              <div className="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
+                <Zap className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="font-bold text-white text-base">Super Fast</h3>
-              <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">Super Fast</h3>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 Instant metadata extraction and stream resolution powered by yt-dlp.
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#0f172a]/90 border border-purple-500/20 hover:border-purple-500/40 glow-card active:scale-[0.98] transition shadow-lg group cursor-default">
-              <div className="h-10 w-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
-                <Layers className="w-5 h-5 text-purple-400" />
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#0f172a]/90 border border-slate-200 dark:border-purple-500/20 hover:border-purple-500/40 glow-card active:scale-[0.98] transition shadow-sm hover:shadow-md dark:shadow-lg group cursor-default">
+              <div className="h-10 w-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
+                <Layers className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               </div>
-              <h3 className="font-bold text-white text-base">Supports Playlists</h3>
-              <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">Supports Playlists</h3>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 Seamlessly parses both single video links and full YouTube playlists.
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#0f172a]/90 border border-indigo-500/20 hover:border-indigo-500/40 glow-card active:scale-[0.98] transition shadow-lg group cursor-default">
-              <div className="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
-                <Sparkles className="w-5 h-5 text-indigo-400" />
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#0f172a]/90 border border-slate-200 dark:border-indigo-500/20 hover:border-indigo-500/40 glow-card active:scale-[0.98] transition shadow-sm hover:shadow-md dark:shadow-lg group cursor-default">
+              <div className="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
+                <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               </div>
-              <h3 className="font-bold text-white text-base">High Quality</h3>
-              <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">High Quality</h3>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 Choose from available resolutions up to 1080p, 4K, or extracted audio.
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#0f172a]/90 border border-emerald-500/20 hover:border-emerald-500/40 glow-card active:scale-[0.98] transition shadow-lg group cursor-default">
-              <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
-                <Gift className="w-5 h-5 text-emerald-400" />
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#0f172a]/90 border border-slate-200 dark:border-emerald-500/20 hover:border-emerald-500/40 glow-card active:scale-[0.98] transition shadow-sm hover:shadow-md dark:shadow-lg group cursor-default">
+              <div className="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
+                <Gift className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <h3 className="font-bold text-white text-base">100% Free</h3>
-              <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">100% Free</h3>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 No subscription, no accounts, and no hidden limitations.
               </p>
             </div>
@@ -1056,10 +1056,10 @@ export function App() {
 
         {/* 6. FAQ Section */}
         <section id="faq" className="mt-20 w-full max-w-3xl pt-6 text-left">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-indigo-400 text-center mb-2">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 text-center mb-2">
             Frequently Asked Questions
           </h2>
-          <p className="text-center text-slate-400 text-xs mb-8">
+          <p className="text-center text-slate-600 dark:text-slate-400 text-xs mb-8">
             Everything you need to know about YTdownloader
           </p>
 
@@ -1069,22 +1069,22 @@ export function App() {
               return (
                 <div
                   key={idx}
-                  className="rounded-2xl bg-[#0f172a]/80 border border-indigo-500/20 overflow-hidden transition"
+                  className="rounded-2xl bg-white dark:bg-[#0f172a]/80 border border-slate-200 dark:border-indigo-500/20 overflow-hidden transition shadow-sm dark:shadow-none"
                 >
                   <button
                     type="button"
                     onClick={() => setExpandedFaq(isOpen ? null : idx)}
-                    className="w-full p-4 sm:p-5 flex items-center justify-between text-left font-semibold text-sm sm:text-base text-white focus:outline-none"
+                    className="w-full p-4 sm:p-5 flex items-center justify-between text-left font-semibold text-sm sm:text-base text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-slate-50 dark:hover:bg-slate-800/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors duration-150 cursor-pointer"
                   >
                     <span>{faq.q}</span>
                     {isOpen ? (
-                      <ChevronUp className="w-4 h-4 text-indigo-400 shrink-0 ml-3" />
+                      <ChevronUp className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 ml-3" />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-slate-500 shrink-0 ml-3" />
+                      <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 ml-3" />
                     )}
                   </button>
                   {isOpen && (
-                    <div className="px-4 sm:px-5 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/80 pt-3">
+                    <div className="px-4 sm:px-5 pb-5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed border-t border-slate-200 dark:border-slate-800/80 pt-3">
                       {faq.a}
                     </div>
                   )}
@@ -1098,7 +1098,7 @@ export function App() {
       </main>
 
       {/* 6. Multi-Column Production Footer */}
-      <footer className="border-t border-indigo-500/20 bg-[#0c1222]/90 backdrop-blur-md pt-16 pb-12 px-4 sm:px-6 mt-20">
+      <footer className="border-t border-slate-200 dark:border-indigo-500/20 bg-slate-100/90 dark:bg-[#0c1222]/90 backdrop-blur-md pt-16 pb-12 px-4 sm:px-6 mt-20">
         <div className="max-w-6xl mx-auto space-y-12">
           {/* 3 Column Balanced Grid (Community & Support completely removed) */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 text-left">
@@ -1111,23 +1111,23 @@ export function App() {
                 <div className="h-6 w-9 rounded bg-[#FF0000] flex items-center justify-center shadow-md shadow-red-600/30">
                   <div className="w-0 h-0 border-y-[4px] border-y-transparent border-l-[7px] border-l-white ml-0.5"></div>
                 </div>
-                <span className="font-extrabold text-sm tracking-tight text-white">
+                <span className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white">
                   YTdownloader
                 </span>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-sm">
                 High-speed YouTube video and playlist archiving tool with native yt-dlp processing and streaming ZIP downloads.
               </p>
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse"></span>
                 <span>System Operational</span>
               </div>
             </div>
 
             {/* Col 2: Products */}
             <div className="space-y-3 md:col-span-3 lg:col-span-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-white">Products</h4>
-              <ul className="space-y-2 text-xs text-slate-400">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Products</h4>
+              <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
                 <li>
                   <a
                     href={BASE_URL}
@@ -1135,7 +1135,7 @@ export function App() {
                       e.preventDefault();
                       navigateToHome();
                     }}
-                    className="hover:text-indigo-400 transition text-left block"
+                    className="hover:text-indigo-600 dark:hover:text-indigo-400 transition text-left block"
                   >
                     Home
                   </a>
@@ -1147,41 +1147,41 @@ export function App() {
                       e.preventDefault();
                       navigateToDownloads();
                     }}
-                    className="hover:text-indigo-400 transition text-left block"
+                    className="hover:text-indigo-600 dark:hover:text-indigo-400 transition text-left block"
                   >
                     Downloads
                   </a>
                 </li>
                 <li>
-                  <button type="button" onClick={navigateToHome} className="hover:text-indigo-400 transition text-left">
+                  <button type="button" onClick={navigateToHome} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition text-left">
                     Single Video Downloader
                   </button>
                 </li>
                 <li>
-                  <button type="button" onClick={navigateToHome} className="hover:text-indigo-400 transition text-left">
+                  <button type="button" onClick={navigateToHome} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition text-left">
                     Playlist Batch Downloader
                   </button>
                 </li>
                 <li>
-                  <button type="button" onClick={() => handleNavSection('plans')} className="hover:text-indigo-400 transition text-left">
+                  <button type="button" onClick={() => handleNavSection('plans')} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition text-left">
                     Premium Plans (Coming Soon)
                   </button>
                 </li>
-                <li><span className="hover:text-indigo-400 transition cursor-default">MP4 1080p Full HD</span></li>
-                <li><span className="hover:text-indigo-400 transition cursor-default">Audio MP3 Extraction</span></li>
-                <li><span className="hover:text-indigo-400 transition cursor-default">Streaming ZIP Engine</span></li>
+                <li><span className="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-default">MP4 1080p Full HD</span></li>
+                <li><span className="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-default">Audio MP3 Extraction</span></li>
+                <li><span className="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-default">Streaming ZIP Engine</span></li>
               </ul>
             </div>
 
             {/* Col 3: Legal */}
             <div className="space-y-3 md:col-span-3 lg:col-span-4">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-white">Legal</h4>
-              <ul className="space-y-2 text-xs text-slate-400">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Legal</h4>
+              <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
                 <li>
                   <button
                     type="button"
                     onClick={() => navigateToLegal('privacy')}
-                    className="hover:text-indigo-400 transition text-left"
+                    className="hover:text-indigo-600 dark:hover:text-indigo-400 transition text-left"
                   >
                     Privacy Policy
                   </button>
@@ -1190,7 +1190,7 @@ export function App() {
                   <button
                     type="button"
                     onClick={() => navigateToLegal('terms')}
-                    className="hover:text-indigo-400 transition text-left"
+                    className="hover:text-indigo-600 dark:hover:text-indigo-400 transition text-left"
                   >
                     Terms of Service
                   </button>
@@ -1199,7 +1199,7 @@ export function App() {
                   <button
                     type="button"
                     onClick={() => navigateToLegal('dmca')}
-                    className="hover:text-indigo-400 transition text-left"
+                    className="hover:text-indigo-600 dark:hover:text-indigo-400 transition text-left"
                   >
                     DMCA / Copyright
                   </button>
@@ -1208,7 +1208,7 @@ export function App() {
                   <button
                     type="button"
                     onClick={() => navigateToLegal('cookies')}
-                    className="hover:text-indigo-400 transition text-left"
+                    className="hover:text-indigo-600 dark:hover:text-indigo-400 transition text-left"
                   >
                     Cookie Policy
                   </button>
@@ -1217,7 +1217,7 @@ export function App() {
                   <button
                     type="button"
                     onClick={() => navigateToLegal('disclaimer')}
-                    className="hover:text-indigo-400 transition text-left"
+                    className="hover:text-indigo-600 dark:hover:text-indigo-400 transition text-left"
                   >
                     Disclaimer
                   </button>
@@ -1227,16 +1227,16 @@ export function App() {
           </div>
 
           {/* Bottom Bar with exact credit */}
-          <div className="border-t border-slate-800/80 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 text-center md:text-left">
-            <p className="max-w-2xl text-[11px] leading-relaxed text-slate-400">
+          <div className="border-t border-slate-200 dark:border-slate-800/80 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 text-center md:text-left">
+            <p className="max-w-2xl text-[11px] leading-relaxed text-slate-600 dark:text-slate-400">
               YTdownloader is designed strictly for personal archiving and downloading content the user owns or has explicit permission to download. Platform DRM, access controls, and cipher-locks are not bypassed.
             </p>
             <div className="shrink-0 space-y-1 text-center md:text-right">
-              <p className="font-semibold text-slate-300">
+              <p className="font-semibold text-slate-700 dark:text-slate-300">
                 @2026 YTdownloader All right reserved
               </p>
               <div className="animate-dev-credit">
-                <span className="dev-credit-badge text-[11px] text-slate-400 hover:text-indigo-300 font-medium cursor-default select-none transition-colors">
+                <span className="dev-credit-badge text-[11px] text-slate-700 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 font-medium cursor-default select-none transition-colors">
                   Developed by Santosh Koli
                 </span>
               </div>

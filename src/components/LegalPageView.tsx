@@ -30,21 +30,21 @@ export const LegalPageView: React.FC<LegalPageViewProps> = ({
         <button
           type="button"
           onClick={onNavigateHome}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 text-xs font-semibold transition active:scale-95 duration-150 cursor-pointer min-h-[36px] w-fit"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700/60 text-xs font-semibold transition active:scale-95 duration-150 cursor-pointer min-h-[36px] w-fit shadow-xs"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Downloader</span>
         </button>
 
         {/* Quick switcher among legal documents */}
-        <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
           <button
             type="button"
             onClick={() => onNavigateRoute('privacy')}
             className={`px-2.5 py-1 rounded-lg transition active:scale-95 duration-150 cursor-pointer ${
               route === 'privacy'
-                ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 font-medium'
-                : 'hover:text-slate-200'
+                ? 'bg-indigo-50 dark:bg-indigo-600/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40 font-medium'
+                : 'hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
             Privacy
@@ -55,8 +55,8 @@ export const LegalPageView: React.FC<LegalPageViewProps> = ({
             onClick={() => onNavigateRoute('terms')}
             className={`px-2.5 py-1 rounded-lg transition active:scale-95 duration-150 cursor-pointer ${
               route === 'terms'
-                ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 font-medium'
-                : 'hover:text-slate-200'
+                ? 'bg-indigo-50 dark:bg-indigo-600/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40 font-medium'
+                : 'hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
             Terms
@@ -67,8 +67,8 @@ export const LegalPageView: React.FC<LegalPageViewProps> = ({
             onClick={() => onNavigateRoute('dmca')}
             className={`px-2.5 py-1 rounded-lg transition active:scale-95 duration-150 cursor-pointer ${
               route === 'dmca'
-                ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 font-medium'
-                : 'hover:text-slate-200'
+                ? 'bg-indigo-50 dark:bg-indigo-600/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40 font-medium'
+                : 'hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
             DMCA
@@ -79,8 +79,8 @@ export const LegalPageView: React.FC<LegalPageViewProps> = ({
             onClick={() => onNavigateRoute('cookies')}
             className={`px-2.5 py-1 rounded-lg transition active:scale-95 duration-150 cursor-pointer ${
               route === 'cookies'
-                ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 font-medium'
-                : 'hover:text-slate-200'
+                ? 'bg-indigo-50 dark:bg-indigo-600/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40 font-medium'
+                : 'hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
             Cookies
@@ -91,8 +91,8 @@ export const LegalPageView: React.FC<LegalPageViewProps> = ({
             onClick={() => onNavigateRoute('disclaimer')}
             className={`px-2.5 py-1 rounded-lg transition active:scale-95 duration-150 cursor-pointer ${
               route === 'disclaimer'
-                ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 font-medium'
-                : 'hover:text-slate-200'
+                ? 'bg-indigo-50 dark:bg-indigo-600/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40 font-medium'
+                : 'hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
             Disclaimer
@@ -101,9 +101,9 @@ export const LegalPageView: React.FC<LegalPageViewProps> = ({
       </div>
 
       {/* Main Document Content */}
-      <article className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#13192f] to-[#0c1020] border border-indigo-500/25 p-4 sm:p-8 md:p-10 shadow-2xl backdrop-blur-md">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
+      <article className="relative overflow-hidden rounded-3xl bg-white dark:bg-gradient-to-b dark:from-[#13192f] dark:to-[#0c1020] border border-slate-200 dark:border-indigo-500/25 p-4 sm:p-8 md:p-10 shadow-sm dark:shadow-2xl backdrop-blur-md">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/5 dark:bg-purple-600/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/5 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
 
         <div className="relative z-10 space-y-8">
           {route === 'privacy' && <PrivacyPolicyContent />}
@@ -115,12 +115,12 @@ export const LegalPageView: React.FC<LegalPageViewProps> = ({
       </article>
 
       {/* Contact & Configuration Notice */}
-      <div className="rounded-xl bg-slate-900/60 border border-slate-800 p-4 text-xs text-slate-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-4 text-xs text-slate-600 dark:text-slate-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
         <div className="flex items-center gap-2">
-          <Mail className="w-4 h-4 text-indigo-400 shrink-0" />
+          <Mail className="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
           <span>
             Legal & Inquiries Contact:{' '}
-            <span className="font-mono text-slate-200 break-all">ytdownloads.support@gmail.com</span>
+            <span className="font-mono text-slate-800 dark:text-slate-200 break-all font-semibold">ytdownloads.support@gmail.com</span>
           </span>
         </div>
       </div>
