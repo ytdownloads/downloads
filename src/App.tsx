@@ -132,7 +132,7 @@ export function App() {
       checkBackendHealth()
         .then((res) => {
           if (isMounted) {
-            if (res.success && res.status === 'ok') {
+            if (res.success && (res.status === 'ok' || (res as any).data?.status === 'ok')) {
               setBackendStatus('online');
             } else {
               setBackendStatus('offline');
