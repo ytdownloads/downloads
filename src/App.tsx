@@ -100,7 +100,7 @@ export function App() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [showSplash, setShowSplash] = useState(true);
   const [justPasted, setJustPasted] = useState(false);
-  const isYoutubeUrlValid = /(?:youtube\.com\/(?:watch\?.*v=|shorts\/|embed\/|playlist\?.*list=)|youtu\.be\/)/i.test(url.trim());
+  const isYoutubeUrlValid = /(?:youtube\.com\/(?:watch\?.*v=|shorts\/|embed\/|live\/|playlist\?.*list=)|youtu\.be\/)/i.test(url.trim());
 
   const [activePlaylistData, setActivePlaylistData] = useState<PlaylistMetadata | null>(() => {
     const route = parseRouteFromLocation();
@@ -610,7 +610,7 @@ export function App() {
     },
     {
       q: 'What YouTube URL formats are supported?',
-      a: 'We support standard watch links (https://www.youtube.com/watch?v=...), short links (https://youtu.be/...), and playlist links (https://www.youtube.com/playlist?list=...). Non-HTTPS and untrusted domains are safely rejected.',
+      a: 'We support standard watch links (https://www.youtube.com/watch?v=...), live streams (https://www.youtube.com/live/...), short links (https://youtu.be/...), shorts (https://www.youtube.com/shorts/...), and playlist links (https://www.youtube.com/playlist?list=...). Non-HTTPS and untrusted domains are safely rejected.',
     },
   ];
 

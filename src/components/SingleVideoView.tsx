@@ -103,10 +103,17 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
         {/* Top bar with content type badge & action */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-4 mb-6">
           <div className="flex items-center space-x-2.5">
-            <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/15 border border-indigo-500/30 text-indigo-300">
-              <Film className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-              <span>Single Video</span>
-            </span>
+            {video.isLive ? (
+              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-500/15 border border-red-500/30 text-red-600 dark:text-red-400 animate-pulse">
+                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                <span>Live Stream</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/15 border border-indigo-500/30 text-indigo-300">
+                <Film className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                <span>Single Video</span>
+              </span>
+            )}
             <span className="text-xs text-slate-500 hidden sm:inline font-mono">
               ID: {video.id}
             </span>
@@ -158,9 +165,9 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
                 <Film className="w-10 h-10" />
               </div>
             )}
-            <div className="absolute bottom-2.5 right-2.5 bg-black/85 px-2 py-0.5 rounded-md text-xs font-mono font-medium text-white flex items-center space-x-1 backdrop-blur-xs">
-              <Clock className="w-3 h-3 text-slate-300" />
-              <span>{formatDisplayDuration(video.durationText, video.duration)}</span>
+            <div className={`absolute bottom-2.5 right-2.5 ${video.isLive ? 'bg-red-600' : 'bg-black/85'} px-2 py-0.5 rounded-md text-xs font-mono font-medium text-white flex items-center space-x-1 backdrop-blur-xs`}>
+              <Clock className="w-3 h-3 text-white" />
+              <span>{video.isLive ? 'LIVE' : formatDisplayDuration(video.durationText, video.duration)}</span>
             </div>
           </div>
 
@@ -274,12 +281,17 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
 
         {/* Quality Card */}
         <div className="bg-[#0f172a]/95 border border-indigo-500/20 rounded-3xl p-4 sm:p-6 shadow-xl backdrop-blur-xl">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center space-x-2">
-            <Sparkles className="w-4 h-4 text-purple-400" />
-            <span>Available Quality Streams</span>
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span>Available Quality Streams</span>
+            </h3>
+            <span className="text-xs font-mono text-slate-400 bg-slate-800/80 px-2.5 py-0.5 rounded-full border border-slate-700/60">
+              {activeFormats.length} stream{activeFormats.length === 1 ? '' : 's'}
+            </span>
+          </div>
 
-          <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
+          <div className="space-y-2.5 max-h-80 sm:max-h-96 overflow-y-auto pr-1.5">
             {activeFormats.length > 0 ? (
               activeFormats.map((f) => {
                 const isSelected = f.formatId === selectedFormatId;
@@ -296,21 +308,25 @@ export const SingleVideoView: React.FC<SingleVideoViewProps> = ({
                   >
                     <div className="flex items-center space-x-3 min-w-0">
                       <div
-                        className={`w-2.5 h-2.5 rounded-full ${
+                        className={`w-2.5 h-2.5 rounded-full shrink-0 ${
                           isSelected ? 'bg-indigo-400 ring-4 ring-indigo-500/20' : 'bg-slate-600'
                         }`}
                       ></div>
-                      <div>
-                        <p className="text-sm font-medium leading-none">{f.quality}</p>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium leading-none truncate">{f.quality}</p>
                         <p className="text-[11px] text-slate-400 mt-1 uppercase font-mono">
                           {f.ext} {f.fps ? `• ${f.fps}fps` : ''}
                         </p>
                       </div>
                     </div>
 
-                    {f.filesize && (
-                      <span className="text-xs font-mono text-slate-400">
+                    {f.filesize ? (
+                      <span className="text-xs font-mono text-slate-400 shrink-0 ml-2">
                         {formatBytes(f.filesize)}
+                      </span>
+                    ) : (
+                      <span className="text-xs font-mono text-slate-500 shrink-0 ml-2">
+                        Stream
                       </span>
                     )}
                   </button>

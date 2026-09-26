@@ -159,9 +159,12 @@ export const BatchDownloadProgressView: React.FC<BatchDownloadProgressViewProps>
 
   const getModalFormatId = (): string => {
     if (modalFormatType === 'audio') return 'audio-best';
+    if (modalQuality === '2160p') return 'video-2160p';
+    if (modalQuality === '1440p') return 'video-1440p';
     if (modalQuality === '1080p') return 'video-1080p';
     if (modalQuality === '720p') return 'video-720p';
     if (modalQuality === '480p') return 'video-480p';
+    if (modalQuality === '360p') return 'video-360p';
     return 'video-1080p';
   };
 
@@ -1193,10 +1196,13 @@ export const BatchDownloadProgressView: React.FC<BatchDownloadProgressViewProps>
                       onChange={(e) => setModalQuality(e.target.value)}
                       className="min-h-[34px] bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium cursor-pointer"
                     >
-                      <option value="best">Best Available (up to 1080p)</option>
+                      <option value="best">Best Available (Recommended)</option>
+                      <option value="2160p">2160p (4K UHD)</option>
+                      <option value="1440p">1440p (2K QHD)</option>
                       <option value="1080p">1080p (Full HD)</option>
                       <option value="720p">720p (HD)</option>
                       <option value="480p">480p (SD)</option>
+                      <option value="360p">360p</option>
                     </select>
                   </div>
                 )}

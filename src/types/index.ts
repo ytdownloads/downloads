@@ -33,6 +33,8 @@ export interface SingleVideoMetadata {
   webpageUrl: string;
   viewCount?: number;
   uploadDate?: string;
+  isLive?: boolean;
+  liveStatus?: string;
   formats: NormalizedFormat[];
 }
 

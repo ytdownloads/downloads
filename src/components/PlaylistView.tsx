@@ -54,9 +54,12 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 
   const getFormatId = (): string => {
     if (formatType === 'audio') return 'audio-best';
+    if (selectedQuality === '2160p') return 'video-2160p';
+    if (selectedQuality === '1440p') return 'video-1440p';
     if (selectedQuality === '1080p') return 'video-1080p';
     if (selectedQuality === '720p') return 'video-720p';
     if (selectedQuality === '480p') return 'video-480p';
+    if (selectedQuality === '360p') return 'video-360p';
     return 'video-1080p';
   };
 
@@ -377,9 +380,12 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
               className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-purple-500 cursor-pointer"
             >
               <option value="best">Best Available (Recommended)</option>
+              <option value="2160p">2160p (4K UHD)</option>
+              <option value="1440p">1440p (2K QHD)</option>
               <option value="1080p">1080p Full HD</option>
               <option value="720p">720p HD</option>
               <option value="480p">480p SD</option>
+              <option value="360p">360p</option>
             </select>
           </div>
 
