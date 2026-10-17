@@ -14,13 +14,10 @@ import {
 } from '../types/index';
 import { sanitizeErrorMessage } from '../utils/errorSanitizer';
 
-const RAW_API_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? '/api' : 'https://downloads-backend.onrender.com');
-
-const API_BASE = RAW_API_URL.endsWith('/api')
-  ? RAW_API_URL.replace(/\/+$/, '')
-  : `${RAW_API_URL.replace(/\/+$/, '')}/api`;
+const RAW_API_URL = import.meta.env.VITE_API_URL;
+const API_BASE = RAW_API_URL
+  ? (RAW_API_URL.endsWith('/api') ? RAW_API_URL.replace(/\/+$/, '') : `${RAW_API_URL.replace(/\/+$/, '')}/api`)
+  : '/api';
 
 
 export class ApiServiceError extends Error {
@@ -46,13 +43,8 @@ export async function checkBackendHealth(): Promise<HealthCheckResponse> {
     throw new Error(`Health check failed with status: ${response.status}`);
   }
 
-  const raw = await response.json() as any;
-  const status = raw.status ?? raw.data?.status ?? '';
-  const ready = raw.ready ?? raw.data?.ready ?? false;
-  const success = Boolean(raw.success && ready === true && status === 'ok');
-  return { success, status, ready } as HealthCheckResponse;
+  return response.json();
 }
-
 
 export async function analyzeUrl(url: string, signal?: AbortSignal): Promise<MediaInfoResult> {
   const response = await fetch(`${API_BASE}/info`, {
@@ -136,6 +128,33 @@ export async function cancelDownload(jobId: string): Promise<void> {
   }
 }
 
+export async function getDownloadStatus(jobId: string): Promise<DownloadJobData> {
+  const response = await fetch(`${API_BASE}/download/${encodeURIComponent(jobId)}/status`, {
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  let payload: { success: boolean; data?: DownloadJobData; error?: ApiError };
+  try {
+    payload = await response.json();
+  } catch {
+    throw new ApiServiceError('PARSE_ERROR', `Unexpected server response (HTTP ${response.status}).`);
+  }
+
+  if (!response.ok || !payload.success || !payload.data) {
+    const errCode = payload.error?.code || `HTTP_${response.status}`;
+    const errMessage = payload.error?.message || 'Failed to fetch download status.';
+    throw new ApiServiceError(errCode, errMessage, payload.error?.details);
+  }
+
+  if (payload.data?.error) {
+    payload.data.error.message = sanitizeErrorMessage(payload.data.error.message, payload.data.error.code);
+  }
+
+  return payload.data;
+}
+
 export function getDownloadFileUrl(jobId: string): string {
   return `${API_BASE}/download/${encodeURIComponent(jobId)}/file`;
 }
@@ -152,10 +171,54 @@ export function subscribeDownloadEvents(
   jobId: string,
   callbacks: DownloadEventCallbacks
 ): () => void {
+  let isClosed = false;
+  let pollInterval: ReturnType<typeof setInterval> | null = null;
+  let pollCount = 0;
+  const maxPolls = 60; // 60 * 2.5s = 2.5 min max fallback polling
+
+  const stopPolling = () => {
+    if (pollInterval) {
+      clearInterval(pollInterval);
+      pollInterval = null;
+    }
+  };
+
+  const startPollingFallback = () => {
+    if (isClosed || pollInterval) return;
+    pollInterval = setInterval(async () => {
+      if (isClosed) {
+        stopPolling();
+        return;
+      }
+      pollCount++;
+      if (pollCount > maxPolls) {
+        stopPolling();
+        return;
+      }
+      try {
+        const data = await getDownloadStatus(jobId);
+        if (data.status === 'completed') {
+          callbacks.onCompleted?.(data);
+          stopPolling();
+        } else if (data.status === 'failed') {
+          callbacks.onError?.(data);
+          stopPolling();
+        } else if (data.status === 'cancelled') {
+          callbacks.onCancelled?.(data);
+          stopPolling();
+        } else {
+          callbacks.onProgress?.(data);
+        }
+      } catch {
+        stopPolling();
+      }
+    }, 2500);
+  };
+
   const eventSource = new EventSource(`${API_BASE}/download/${encodeURIComponent(jobId)}/events`);
 
   const handleMessage = (event: Event, callback?: (data: DownloadJobData) => void) => {
-    if (!callback) return;
+    if (!callback || isClosed) return;
     try {
       const messageEvent = event as MessageEvent;
       const data: DownloadJobData = JSON.parse(messageEvent.data);
@@ -163,6 +226,9 @@ export function subscribeDownloadEvents(
         data.error.message = sanitizeErrorMessage(data.error.message, data.error.code);
       }
       callback(data);
+      if (data.status === 'completed' || data.status === 'failed' || data.status === 'cancelled') {
+        stopPolling();
+      }
     } catch (err) {
       console.error('Failed to parse SSE event data', err);
     }
@@ -175,11 +241,15 @@ export function subscribeDownloadEvents(
   eventSource.addEventListener('cancelled', (e) => handleMessage(e, callbacks.onCancelled));
 
   eventSource.onerror = () => {
-    // If connection dropped or server closed
     eventSource.close();
+    if (!isClosed) {
+      startPollingFallback();
+    }
   };
 
   return () => {
+    isClosed = true;
+    stopPolling();
     eventSource.close();
   };
 }
@@ -362,14 +432,67 @@ export function subscribeBatchEvents(
   batchJobId: string,
   callbacks: BatchEventCallbacks
 ): () => void {
+  let isClosed = false;
+  let pollInterval: ReturnType<typeof setInterval> | null = null;
+  let pollCount = 0;
+  const maxPolls = 120; // 120 * 3s = 6 min max fallback polling
+
+  const stopPolling = () => {
+    if (pollInterval) {
+      clearInterval(pollInterval);
+      pollInterval = null;
+    }
+  };
+
+  const startPollingFallback = () => {
+    if (isClosed || pollInterval) return;
+    pollInterval = setInterval(async () => {
+      if (isClosed) {
+        stopPolling();
+        return;
+      }
+      pollCount++;
+      if (pollCount > maxPolls) {
+        stopPolling();
+        return;
+      }
+      try {
+        const data = await getBatchStatus(batchJobId);
+        callbacks.onUpdate?.(data);
+        if (
+          (data.status === 'completed' ||
+            data.status === 'completed_with_errors' ||
+            data.status === 'failed' ||
+            data.status === 'cancelled') &&
+          data.zipStatus !== 'creating' &&
+          data.zipStatus !== 'finalizing'
+        ) {
+          stopPolling();
+        }
+      } catch {
+        stopPolling();
+      }
+    }, 3000);
+  };
+
   const eventSource = new EventSource(`${API_BASE}/batch/${encodeURIComponent(batchJobId)}/events`);
 
   const handleMessage = (event: Event, callback?: (data: BatchJobData) => void) => {
-    if (!callback) return;
+    if (!callback || isClosed) return;
     try {
       const messageEvent = event as MessageEvent;
       const data: BatchJobData = JSON.parse(messageEvent.data);
       callback(data);
+      if (
+        (data.status === 'completed' ||
+          data.status === 'completed_with_errors' ||
+          data.status === 'failed' ||
+          data.status === 'cancelled') &&
+        data.zipStatus !== 'creating' &&
+        data.zipStatus !== 'finalizing'
+      ) {
+        stopPolling();
+      }
     } catch (err) {
       console.error('Failed to parse batch SSE event data', err);
     }
@@ -381,9 +504,14 @@ export function subscribeBatchEvents(
 
   eventSource.onerror = () => {
     eventSource.close();
+    if (!isClosed) {
+      startPollingFallback();
+    }
   };
 
   return () => {
+    isClosed = true;
+    stopPolling();
     eventSource.close();
   };
 }

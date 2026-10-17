@@ -21,6 +21,7 @@ import {
   checkBackendHealth,
   analyzeUrl,
   createDownload,
+  getDownloadStatus,
   subscribeDownloadEvents,
   createBatchDownload,
   subscribeBatchEvents,
@@ -211,6 +212,32 @@ export function App() {
       document.title = 'YTdownloader — Downloads';
     } else if (route.legal) {
       setLegalRoute(route.legal);
+    } else {
+      // Check if there was an active single download stored in sessionStorage
+      try {
+        const savedSingleJobId = sessionStorage.getItem('ytdl_active_single_job_id');
+        if (savedSingleJobId) {
+          getDownloadStatus(savedSingleJobId)
+            .then((jobData) => {
+              setDownloadJob(jobData);
+              setState('downloading');
+              document.title = 'YTdownloader — Downloading';
+              const unsub = subscribeDownloadEvents(savedSingleJobId, {
+                onStatus: (updated) => setDownloadJob(updated),
+                onProgress: (updated) => setDownloadJob(updated),
+                onCompleted: (updated) => setDownloadJob(updated),
+                onError: (updated) => setDownloadJob(updated),
+                onCancelled: (updated) => setDownloadJob(updated),
+              });
+              unsubscribeDownloadRef.current = unsub;
+            })
+            .catch(() => {
+              sessionStorage.removeItem('ytdl_active_single_job_id');
+            });
+        }
+      } catch {
+        // ignore
+      }
     }
   }, []);
 
@@ -378,6 +405,12 @@ export function App() {
 
     try {
       const { jobId, status } = await createDownload(mediaData.webpageUrl, formatId);
+
+      try {
+        sessionStorage.setItem('ytdl_active_single_job_id', jobId);
+      } catch {
+        // ignore
+      }
 
       setDownloadJob((prev) => (prev ? { ...prev, jobId, status } : null));
 
@@ -581,6 +614,11 @@ export function App() {
     setBatchJob(null);
     setApiError(null);
     setInputError(null);
+    try {
+      sessionStorage.removeItem('ytdl_active_single_job_id');
+    } catch {
+      // ignore
+    }
     navigateToHome();
   };
 
@@ -797,25 +835,45 @@ export function App() {
             />
           </div>
         ) : isDownloadsView ? (
-          <div className="w-full max-w-xl py-12 px-6 rounded-3xl bg-white dark:bg-[#0f172a]/95 border border-slate-200 dark:border-indigo-500/30 flex flex-col items-center justify-center space-y-5 shadow-sm dark:shadow-2xl backdrop-blur-xl mx-auto my-12 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-600/20 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center shadow-sm dark:shadow-lg dark:shadow-indigo-500/20">
-              <FolderDown className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+          downloadJob ? (
+            <div className="w-full">
+              <DownloadProgressView
+                job={downloadJob}
+                thumbnail={mediaData?.thumbnail}
+                onReset={handleReset}
+                onRetry={() => handleStartDownload(downloadJob.formatId)}
+              />
             </div>
-            <div className="space-y-2 max-w-md">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">No Active Download Session</h2>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                You don't have an active single video or playlist batch download in progress. Paste a YouTube URL on the home page to start downloading.
-              </p>
+          ) : batchJob ? (
+            <div className="w-full">
+              <BatchDownloadProgressView
+                batch={batchJob}
+                playlistMetadata={activePlaylistData || (mediaData?.type === 'playlist' ? mediaData : null)}
+                onReset={handleReset}
+                onBatchUpdated={(updated) => setBatchJob(updated)}
+              />
             </div>
-            <button
-              type="button"
-              onClick={navigateToHome}
-              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium text-xs sm:text-sm shadow-md shadow-indigo-500/30 transition cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Return to Home</span>
-            </button>
-          </div>
+          ) : (
+            <div className="w-full max-w-xl py-12 px-6 rounded-3xl bg-white dark:bg-[#0f172a]/95 border border-slate-200 dark:border-indigo-500/30 flex flex-col items-center justify-center space-y-5 shadow-sm dark:shadow-2xl backdrop-blur-xl mx-auto my-12 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-600/20 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center shadow-sm dark:shadow-lg dark:shadow-indigo-500/20">
+                <FolderDown className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <div className="space-y-2 max-w-md">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">No Active Download Session</h2>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  You don't have an active single video or playlist batch download in progress. Paste a YouTube URL on the home page to start downloading.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={navigateToHome}
+                className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium text-xs sm:text-sm shadow-md shadow-indigo-500/30 transition cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Return to Home</span>
+              </button>
+            </div>
+          )
         ) : (
           <div className="w-full flex flex-col items-center text-center animate-slide-up">
             {/* YouTube Visual Motion Badge */}

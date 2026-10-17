@@ -12,6 +12,8 @@ import {
   Check,
   Cpu,
   Layers,
+  Activity,
+  Circle,
 } from 'lucide-react';
 import { DownloadJobData } from '../types/index';
 import { cancelDownload, getDownloadFileUrl } from '../services/api';
@@ -70,6 +72,12 @@ export const DownloadProgressView: React.FC<DownloadProgressViewProps> = ({
   const isFailed = status === 'failed';
   const isCancelled = status === 'cancelled';
   const isActive = status === 'preparing' || status === 'downloading' || status === 'processing';
+
+  // Genuine validated completion: backend confirmed completion AND output file details exist
+  const isGenuinelyCompleted = isCompleted && Boolean(job.fileName || (job.fileSize && job.fileSize > 0));
+
+  // Genuine active state: backend status is actively downloading/processing and not finished/halted
+  const isGenuinelyActive = isActive && !isGenuinelyCompleted && !isFailed && !isCancelled;
 
   const isAudio =
     job.formatId.toLowerCase().includes('audio') ||
@@ -318,6 +326,87 @@ export const DownloadProgressView: React.FC<DownloadProgressViewProps> = ({
               {job.formatId}
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* Counter Summary Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+        <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
+          <span className="text-slate-400">Total</span>
+          <span className="font-bold text-white font-mono">1</span>
+        </div>
+        <div
+          className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-colors border ${
+            isGenuinelyCompleted
+              ? 'bg-emerald-950/30 border-emerald-500/20 text-emerald-400'
+              : 'bg-slate-900/60 border-slate-800 text-slate-400'
+          }`}
+        >
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2
+              className={`w-3.5 h-3.5 ${
+                isGenuinelyCompleted ? 'text-emerald-400' : 'text-slate-500'
+              }`}
+            />
+            <span>Completed</span>
+          </span>
+          <span
+            className={`font-bold font-mono ${
+              isGenuinelyCompleted ? 'text-emerald-300' : 'text-slate-400'
+            }`}
+          >
+            {isGenuinelyCompleted ? 1 : 0}
+          </span>
+        </div>
+        <div
+          className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-colors border ${
+            isGenuinelyActive
+              ? 'bg-blue-950/30 border-blue-500/20 text-blue-400'
+              : 'bg-slate-900/60 border-slate-800 text-slate-400'
+          }`}
+        >
+          <span className="flex items-center gap-1.5">
+            {isGenuinelyActive ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
+            ) : (
+              <Activity className="w-3.5 h-3.5 text-slate-500" />
+            )}
+            <span>Active</span>
+          </span>
+          <span
+            className={`font-bold font-mono ${
+              isGenuinelyActive ? 'text-blue-300' : 'text-slate-400'
+            }`}
+          >
+            {isGenuinelyActive ? 1 : 0}
+          </span>
+        </div>
+        <div
+          className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-colors border ${
+            isFailed
+              ? 'bg-rose-950/30 border-rose-500/20 text-rose-400'
+              : isCancelled
+              ? 'bg-amber-950/30 border-amber-500/20 text-amber-400'
+              : 'bg-slate-900/60 border-slate-800 text-slate-400'
+          }`}
+        >
+          <span className="flex items-center gap-1.5">
+            {isFailed ? (
+              <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+            ) : isCancelled ? (
+              <XCircle className="w-3.5 h-3.5 text-amber-400" />
+            ) : (
+              <Circle className="w-3.5 h-3.5 text-slate-500" />
+            )}
+            <span>{isCancelled ? 'Cancelled' : isFailed ? 'Failed' : 'Status'}</span>
+          </span>
+          <span
+            className={`font-bold font-mono ${
+              isFailed ? 'text-rose-300' : isCancelled ? 'text-amber-300' : 'text-slate-400'
+            }`}
+          >
+            {isFailed || isCancelled ? 1 : 0}
+          </span>
         </div>
       </div>
 

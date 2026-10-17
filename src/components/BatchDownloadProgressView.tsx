@@ -21,6 +21,8 @@ import {
   Music,
   ListPlus,
   Check,
+  Activity,
+  Circle,
 } from 'lucide-react';
 import { BatchJobData, PlaylistMetadata } from '../types/index';
 import {
@@ -244,10 +246,20 @@ export const BatchDownloadProgressView: React.FC<BatchDownloadProgressViewProps>
     }
   };
 
-  // Find currently active item (concurrency = 1)
-  const activeItem = items.find(
+  // Find genuinely active items (concurrency = 1)
+  const activeItems = items.filter(
     (i) => i.status === 'downloading' || i.status === 'processing'
   );
+  const activeItem = activeItems[0] || null;
+  const activeCount = activeItems.length;
+
+  // Genuine queued items (waiting state, separate from active)
+  const queuedCount = items.filter((i) => i.status === 'pending').length;
+
+  // Genuine validated completed items (backend confirmed with fileName/fileSize)
+  const verifiedCompletedCount = items.filter(
+    (i) => i.status === 'completed' && Boolean(i.fileName || i.filePath || (i.fileSize && i.fileSize > 0))
+  ).length;
 
   // Derive human-readable current operation banner
   let currentOperation = 'Preparing download queue...';
@@ -673,28 +685,85 @@ export const BatchDownloadProgressView: React.FC<BatchDownloadProgressViewProps>
             </div>
 
             {/* Counter Summary Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2">
               <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
                 <span className="text-slate-400">Total Selected</span>
-                <span className="font-bold text-white">{totalItems}</span>
+                <span className="font-bold text-white font-mono">{totalItems}</span>
               </div>
-              <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-emerald-950/30 border border-emerald-500/20 text-xs">
-                <span className="text-emerald-400 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Completed
+              <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-indigo-950/30 border border-indigo-500/20 text-xs">
+                <span className="text-indigo-400 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" /> Queued
                 </span>
-                <span className="font-bold text-emerald-300">{completedItems}</span>
+                <span className="font-bold text-indigo-300 font-mono">{queuedCount}</span>
               </div>
-              <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-blue-950/30 border border-blue-500/20 text-xs">
-                <span className="text-blue-400 flex items-center gap-1">
-                  <Loader2 className={`w-3.5 h-3.5 ${activeItem ? 'animate-spin' : ''}`} /> Active
+              <div
+                className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-colors border ${
+                  activeCount > 0
+                    ? 'bg-blue-950/30 border-blue-500/20 text-blue-400'
+                    : 'bg-slate-900/60 border-slate-800 text-slate-400'
+                }`}
+              >
+                <span className="flex items-center gap-1.5">
+                  {activeCount > 0 ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
+                  ) : (
+                    <Activity className="w-3.5 h-3.5 text-slate-500" />
+                  )}
+                  <span>Active</span>
                 </span>
-                <span className="font-bold text-blue-300">{activeItem ? 1 : 0}</span>
+                <span
+                  className={`font-bold font-mono ${
+                    activeCount > 0 ? 'text-blue-300' : 'text-slate-400'
+                  }`}
+                >
+                  {activeCount}
+                </span>
               </div>
-              <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-rose-950/30 border border-rose-500/20 text-xs">
-                <span className="text-rose-400 flex items-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5" /> Failed
+              <div
+                className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-colors border ${
+                  verifiedCompletedCount > 0
+                    ? 'bg-emerald-950/30 border-emerald-500/20 text-emerald-400'
+                    : 'bg-slate-900/60 border-slate-800 text-slate-400'
+                }`}
+              >
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2
+                    className={`w-3.5 h-3.5 ${
+                      verifiedCompletedCount > 0 ? 'text-emerald-400' : 'text-slate-500'
+                    }`}
+                  />
+                  <span>Completed</span>
                 </span>
-                <span className="font-bold text-rose-300">
+                <span
+                  className={`font-bold font-mono ${
+                    verifiedCompletedCount > 0 ? 'text-emerald-300' : 'text-slate-400'
+                  }`}
+                >
+                  {verifiedCompletedCount}
+                </span>
+              </div>
+              <div
+                className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-colors border col-span-2 sm:col-span-1 ${
+                  failedItems > 0 || cancelledItems > 0
+                    ? 'bg-rose-950/30 border-rose-500/20 text-rose-400'
+                    : 'bg-slate-900/60 border-slate-800 text-slate-400'
+                }`}
+              >
+                <span className="flex items-center gap-1.5">
+                  {failedItems > 0 ? (
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+                  ) : cancelledItems > 0 ? (
+                    <XCircle className="w-3.5 h-3.5 text-amber-400" />
+                  ) : (
+                    <Circle className="w-3.5 h-3.5 text-slate-500" />
+                  )}
+                  <span>Failed</span>
+                </span>
+                <span
+                  className={`font-bold font-mono ${
+                    failedItems > 0 || cancelledItems > 0 ? 'text-rose-300' : 'text-slate-400'
+                  }`}
+                >
                   {failedItems}
                   {cancelledItems > 0 ? ` (${cancelledItems} stop)` : ''}
                 </span>
